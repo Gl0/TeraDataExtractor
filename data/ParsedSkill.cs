@@ -30,12 +30,12 @@ namespace TeraDataExtractor
             }
             BaseName = cut;
             if (modifiers.Contains(" continuous") || modifiers.Contains(" large") || modifiers.Contains(" chain") || modifiers.Contains(" short") || modifiers.Contains(" shortairreaction"))
-                { Chained = "True"; } else { Chained = ""; }
+                { Chained = "True"; } else { Chained = "False"; }
 
             if (modifiers.Contains(" explosion") || modifiers.Contains(" explosionforbot") || modifiers.Contains(" realTargeting"))
                 { Detail = "Explosion"; }
 
-            if (modifiers.Contains("01") && ((sType.Contains("combo") || modifiers.Contains(" shortairreaction"))))
+            if (modifiers.Contains("01") && ((sType.Contains("combo") || modifiers.Contains(" shortairreaction")))&&(!BaseName.Contains("thunder drake")))
             {
                 Detail = "hit 1";
             }
@@ -46,7 +46,7 @@ namespace TeraDataExtractor
                 { Detail=Detail+"hit "+modifiers.Find(x=>x.Contains("0")).Substring(1,1);}
 
             if (( modifiers.Contains("00") || modifiers.Contains("01")||modifiers.Contains("02") || modifiers.Contains("03") || modifiers.Contains("04") || modifiers.Contains("05") || modifiers.Contains("06") || modifiers.Contains("07")
-                || modifiers.Contains("08") || modifiers.Contains("09")) && (modifiers.Contains(" shot"))&&(!modifiers.Contains(" projectile")) && (!modifiers.Contains(" cast")) && (!sType.Contains("capture")))
+                || modifiers.Contains("08") || modifiers.Contains("09")) && (modifiers.Contains(" shot"))&&(!modifiers.Contains(" projectile")) && (!modifiers.Contains(" cast")) && (!sType.Contains("capture"))&& (!BaseName.Contains("thunder drake")))
 
                 { Detail = Detail + "hit " + (int.Parse(modifiers.Find(x => x.Contains("0")).Substring(1, 1))+1).ToString(); }
 

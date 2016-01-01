@@ -154,7 +154,7 @@ namespace TeraDataExtractor
                 var name = values[4];
                 var detail = values[5];
                 var chained = values[6];
-                var str = id + "\t" + name + "\t" + detail +"\t"+chained;
+                var str = id + "\t" + name + "\t" + chained + "\t"+ detail;
 
                 if (race != "Common" || gender != "Common") continue;
 
