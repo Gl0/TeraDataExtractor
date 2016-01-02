@@ -107,7 +107,7 @@ namespace TeraDataExtractor
                     Directory.EnumerateFiles(RootFolder + _region + "/ItemData/"))
             {
                 var xml = XDocument.Load(file);
-                var itemdata = (from item in xml.Root.Elements("Item") let comb=(item.Attribute("category")== null)?"no": item.Attribute("category").Value let skillid = (item.Attribute("linkSkillId")==null)?"0":item.Attribute("linkSkillId").Value let nameid = item.Attribute("id").Value where ((comb=="combat")||(comb=="brooch") || (comb == "charm")) && skillid!="0" && skillid != "" && nameid != "" select new { skillid, nameid });
+                var itemdata = (from item in xml.Root.Elements("Item") let comb=(item.Attribute("category")== null)?"no": item.Attribute("category").Value let skillid = (item.Attribute("linkSkillId")==null)?"0":item.Attribute("linkSkillId").Value let nameid = item.Attribute("id").Value where ((comb=="combat")||(comb=="brooch") || (comb == "charm") || (comb == "magical")) && skillid!="0" && skillid != "" && nameid != "" select new { skillid, nameid });
                 // filter only combat items, we don't need box openings etc.
                 ItemSkills = ItemSkills.Union(itemdata, (x, y) => x.skillid == y.skillid, x => x.skillid.GetHashCode()).ToList();
             }
