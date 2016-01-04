@@ -55,7 +55,7 @@ namespace TeraDataExtractor
             return !(x == y);
         }
         public string toCSV() { return Id + ";" + Race + ";" + Gender + ";" + PClass + ";" + Name+ ";"+ Chained+";"+Detail; }
-        public string toTSV() { return Id + "\t" + Race + "\t" + Gender + "\t" + PClass + "\t" + Name ; }
+        public string toTSV() { return Id + "\t" + Race + "\t" + Gender + "\t" + PClass + "\t" + Name +"\t"+Chained+"\t"+Detail ; }
         public string toSSV() { return Id + " " + Race + " " + Gender + " " + PClass + " " + Name; }
 
         public bool Equals(Skill y)

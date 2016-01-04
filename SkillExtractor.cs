@@ -24,14 +24,17 @@ namespace TeraDataExtractor
             chained_skills();
             item_Skills();
             var outputFile = new StreamWriter("DATA/skills-" + _region + ".csv");
+            var outputTFile = new StreamWriter("DATA/skills-" + _region + ".tsv");
             foreach (Skill line in skilllist)
             {
-//                outputFile.WriteLine(line.toSSV());
+                outputTFile.WriteLine(line.toTSV());
                 outputFile.WriteLine(line.toCSV());
             }
             outputFile.Flush();
             outputFile.Close();
-            SkillsFormat();
+            outputTFile.Flush();
+            outputTFile.Close();
+            //            SkillsFormat();
         }
 
         private void chained_skills()
