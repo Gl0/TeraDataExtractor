@@ -23,6 +23,7 @@ namespace TeraDataExtractor
             RawExtract();
             chained_skills();
             item_Skills();
+            loadoverride();
             var outputFile = new StreamWriter("DATA/skills-" + _region + ".txt");
             var outputTFile = new StreamWriter("DATA/skills-" + _region + ".tsv");
             foreach (Skill line in skilllist)
@@ -35,6 +36,34 @@ namespace TeraDataExtractor
             outputTFile.Flush();
             outputTFile.Close();
             //            SkillsFormat();
+        }
+        private void loadoverride()
+        {
+            if (!File.Exists(RootFolder + "override/skills-override-" + _region + ".tsv"))
+                return;
+            var reader = new StreamReader(File.OpenRead(RootFolder + "override/skills-override-" + _region + ".tsv"));
+            List<Skill> skilllist1 = new List<Skill>();
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                if (line == null) continue;
+                var values = line.Split('\t');
+                var id = values[0];
+                var race = values[1];
+                var gender = values[2];
+                var PClass = values[3];
+                var skillName = values[4];
+                var chained = "false";
+                if (values[5] != "")
+                {
+                    chained = values[5];
+                }
+                var skillDetail = values[6];
+
+                var skill = new Skill(id, race, gender, PClass, skillName, chained, skillDetail);
+                skilllist1.Add(skill);
+            }
+            skilllist=skilllist1.Union(skilllist).ToList();
         }
 
         private void chained_skills()
@@ -125,106 +154,6 @@ namespace TeraDataExtractor
             }
             var Items = (from item in ItemSkills join nam in ItemNames on item.nameid equals nam.nameid orderby item.skillid where nam.name!="" select new Skill(item.skillid,"Common","Common","Common", nam.name)).ToList();
             skilllist=skilllist.Union(Items).ToList();
-        }
-
-
-
-        private void SkillsFormat()
-        {
-            var reader = new StreamReader(File.OpenRead("data/skills-" + _region + ".csv"));
-            var mystic = new StreamWriter("data/skills/mystic-" + _region + ".tsv");
-            var priest = new StreamWriter("data/skills/priest-" + _region + ".tsv");
-            var gunner = new StreamWriter("data/skills/gunner-" + _region + ".tsv");
-            var reaper = new StreamWriter("data/skills/reaper-" + _region + ".tsv");
-            var archer = new StreamWriter("data/skills/archer-" + _region + ".tsv");
-            var warrior = new StreamWriter("data/skills/warrior-" + _region + ".tsv");
-            var slayer = new StreamWriter("data/skills/slayer-" + _region + ".tsv");
-            var berserker = new StreamWriter("data/skills/berserker-" + _region + ".tsv");
-            var sorcerer = new StreamWriter("data/skills/sorcerer-" + _region + ".tsv");
-            var lancer = new StreamWriter("data/skills/lancer-" + _region + ".tsv");
-            var common = new StreamWriter("data/skills/common-" + _region + ".tsv");
-            var brawler = new StreamWriter("data/skills/brawler-" + _region + ".tsv");
-
-            while (!reader.EndOfStream)
-            {
-                var line = reader.ReadLine();
-                if (line == null) continue;
-                var values = line.Split(';');
-                var id = values[0];
-                var race = values[1];
-                var gender = values[2];
-                var playerclass = values[3];
-                var name = values[4];
-                var detail = values[5];
-                var chained = values[6];
-                var str = id + "\t" + name + "\t" + chained + "\t"+ detail;
-
-                if (race != "Common" || gender != "Common") continue;
-
-                switch (playerclass)
-                {
-                    case "Mystic":
-                        mystic.WriteLine(str);
-                        break;
-                    case "Priest":
-                        priest.WriteLine(str);
-                        break;
-                    case "Reaper":
-                        reaper.WriteLine(str);
-                        break;
-                    case "Gunner":
-                        gunner.WriteLine(str);
-                        break;
-                    case "Archer":
-                        archer.WriteLine(str);
-                        break;
-                    case "Warrior":
-                        warrior.WriteLine(str);
-                        break;
-                    case "Slayer":
-                        slayer.WriteLine(str);
-                        break;
-                    case "Berserker":
-                        berserker.WriteLine(str);
-                        break;
-                    case "Sorcerer":
-                        sorcerer.WriteLine(str);
-                        break;
-                    case "Lancer":
-                        lancer.WriteLine(str);
-                        break;
-                    case "Brawler":
-                        brawler.WriteLine(str);
-                        break;
-                    case "Common":
-                        common.WriteLine(str);
-                        break;
-                }
-            }
-            brawler.Flush();
-            brawler.Close();
-            common.Flush();
-            common.Close();
-            mystic.Flush();
-            mystic.Close();
-            warrior.Flush();
-            warrior.Close();
-            priest.Flush();
-            priest.Close();
-            lancer.Flush();
-            lancer.Close();
-            sorcerer.Flush();
-            sorcerer.Close();
-            berserker.Flush();
-            berserker.Close();
-            slayer.Flush();
-            slayer.Close();
-            archer.Flush();
-            archer.Close();
-            gunner.Flush();
-            gunner.Close();
-            reaper.Flush();
-            reaper.Close();
         }
 
         private void RawExtract()

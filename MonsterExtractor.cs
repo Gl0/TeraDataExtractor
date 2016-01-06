@@ -124,59 +124,50 @@ namespace TeraDataExtractor
                            from zone in zones.DefaultIfEmpty()
                            orderby mobs.idzone, mobs.identity select new { mobs.idzone, regname=zone==null?"unknown":zone.Name, mobs.identity, mobs.name, boss=(zone==null)?false:zone.battle?false:mobs.boss, mobs.maxHP, mobs.size }).ToList();
 
-            foreach (var all in alldata) {
-                if (!_zones.ContainsKey(all.idzone))
-                {
-                    _zones.Add(all.idzone, new Zone(all.idzone, all.regname));
-                }
-                _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, all.name, all.maxHP, all.boss));
-            }
+            var bossOverride = new Dictionary<int, Dictionary<int, bool>>();
+            var nameOverride = new Dictionary<int, Dictionary<int, string>>();
 
-            //using (StreamWriter outputFile = new StreamWriter("data/monsters.csv"))
-            //{
-            //    foreach (var line in alldata)
-            //    {
-            //        outputFile.WriteLine("{0};{1};{2};{3};{4};{5}", line.idzone, line.regname, line.identity, line.name, line.boss,line.maxHP);
-            //    }
-            //}
+            if (File.Exists(RootFolder + "override/monsters-override.xml")){
+                var isBossOverrideXml = XDocument.Load(RootFolder + "override/monsters-override.xml");
+                foreach (var zone in isBossOverrideXml.Root.Elements("Zone"))
+                {
+                    var id = int.Parse(zone.Attribute("id").Value);
+                    bossOverride.Add(id, new Dictionary<int, bool>());
+                    nameOverride.Add(id, new Dictionary<int, string>());
+                    foreach (var monster in zone.Elements("Monster"))
+                    {
+                        var monsterId = int.Parse(monster.Attribute("id").Value);
+                        var isBoss = monster.Attribute("isBoss");
+                        if (isBoss != null)
+                        {
+                            var isBossString = isBoss.Value.ToLower();
+                            bossOverride[id].Add(monsterId, isBossString == "true");
+                        }
+                        var bossName = monster.Attribute("name");
+                        if (bossName == null) continue;
+                        var nameOverrideString = bossName.Value;
+                        nameOverride[id].Add(monsterId, nameOverrideString);
+                    }
+                }
+            }
             using (StreamWriter outputFile = new StreamWriter("data/npc.txt"))
             {
-                foreach (var line in alldata)
+                foreach (var all in alldata) {
+                if (!_zones.ContainsKey(all.idzone))
                 {
-                    outputFile.WriteLine("{0} {1} {2} {3} {4}", line.idzone, line.identity, line.boss, line.maxHP, line.name);
+                        _zones.Add(all.idzone, new Zone(all.idzone, all.regname));
                 }
-            }
-        }
+                    bool isboss = all.boss;
+                    if (bossOverride.ContainsKey(all.idzone) && bossOverride[all.idzone].ContainsKey(all.identity))
+                        isboss = bossOverride[all.idzone][all.identity];
+                    string name = all.name;
+                    if (nameOverride.ContainsKey(all.idzone) && nameOverride[all.idzone].ContainsKey(all.identity))
+                        name = nameOverride[all.idzone][all.identity];
 
-        private void MonsterSeparator()
-        {
-            var reader = new StreamReader(File.OpenRead("data/monsters.csv"));
-            var writers = new Dictionary<int, StreamWriter>();
-            while (!reader.EndOfStream)
-            {
-                var line = reader.ReadLine();
-                if (line == null) continue;
-                var values = line.Split(';');
-                var area = Convert.ToInt32(values[0]);
-                var areaname = values[1];
-                var id = Convert.ToInt32(values[2]);
-                var name = values[3];
-                var boss = Boolean.Parse(values[4]);
-                var maxHP = Convert.ToInt32(values[5]);
-                if (!writers.ContainsKey(area))
-                {
+                    _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss));
 
-                    writers.Add(area, new StreamWriter("data/"+ area + "-" + areaname.Replace("\"", "'").Replace(':', ';').Replace("-","_") + ".tsv"));
+                    outputFile.WriteLine("{0} {1} {2} {3} {4}", all.idzone, all.identity, isboss, all.maxHP, name);
                 }
-                StreamWriter writer;
-                writers.TryGetValue(area, out writer);
-                writer.WriteLine(id + "\t" + name + "\t" + boss +"\t" + maxHP);
-            }
-
-            foreach (var writer in writers)
-            {
-                writer.Value.Flush();
-                writer.Value.Close();
             }
         }
     }
