@@ -132,11 +132,18 @@ namespace TeraDataExtractor
                 _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, all.name, all.maxHP, all.boss));
             }
 
-            using (StreamWriter outputFile = new StreamWriter("data/monsters.csv"))
+            //using (StreamWriter outputFile = new StreamWriter("data/monsters.csv"))
+            //{
+            //    foreach (var line in alldata)
+            //    {
+            //        outputFile.WriteLine("{0};{1};{2};{3};{4};{5}", line.idzone, line.regname, line.identity, line.name, line.boss,line.maxHP);
+            //    }
+            //}
+            using (StreamWriter outputFile = new StreamWriter("data/npc.txt"))
             {
                 foreach (var line in alldata)
                 {
-                    outputFile.WriteLine("{0};{1};{2};{3};{4};{5}", line.idzone, line.regname, line.identity, line.name, line.boss,line.maxHP);
+                    outputFile.WriteLine("{0} {1} {2} {3} {4}", line.idzone, line.identity, line.boss, line.maxHP, line.name);
                 }
             }
         }
