@@ -53,11 +53,7 @@ namespace TeraDataExtractor
                 var gender = values[2];
                 var PClass = values[3];
                 var skillName = values[4];
-                var chained = "false";
-                if (values[5] != "")
-                {
-                    chained = values[5];
-                }
+                var chained = values[5];
                 var skillDetail = values[6];
 
                 var skill = new Skill(id, race, gender, PClass, skillName, chained, skillDetail);
@@ -122,7 +118,7 @@ namespace TeraDataExtractor
                            join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
                            join sl in skilllist on new { cs.skillid, cs.PClass } equals new { skillid = sl.Id, sl.PClass } into uskills
                            from uskill in uskills.DefaultIfEmpty(new Skill("","","","",""))
-                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? itp.Name : uskill.Name,cs.p_skill.Chained,cs.p_skill.Detail)).ToList();
+                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, RemoveLvl(uskill.Name == "" ? itp.Name : uskill.Name)+cs.p_skill.Lvl,cs.p_skill.Chained,cs.p_skill.Detail)).ToList();
                          
         }
         private string cut_name(string internalname, out List<string> modifiers)
@@ -175,6 +171,22 @@ namespace TeraDataExtractor
                 skilllist = skilllist.Union(skilldata).ToList();
             }
         }
+
+        private string RemoveLvl(string Name)
+        {
+            string res = Name;
+            foreach (string lvl in lvls)
+            {
+                if (res.EndsWith(lvl))
+                {
+                    res = res.Substring(0, res.Length - lvl.Length);
+                    break;
+                }
+            }
+            return res;
+        }
+        private static List<string> lvls = new List<string> { " I", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X",
+            " XI", " XII", " XIII", " XIV", " XV", " XVI", " XVII", " XVIII", " XIX", " XX" };
 
         private string ClassConv(string PClass)
         {

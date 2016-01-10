@@ -28,12 +28,22 @@ namespace TeraDataExtractor
                     }
                 }
             }
+            foreach (var lvl in levels)
+            {
+                if (cut.Contains(lvl.Key))
+                {
+                    cut = cut.Replace(lvl.Key,"");
+                    Lvl = lvl.Value;
+                    break;
+                }
+            }
+
             BaseName = cut;
             if (modifiers.Contains(" continuous") || modifiers.Contains(" large") || modifiers.Contains(" chain") || modifiers.Contains(" short") || modifiers.Contains(" shortairreaction"))
                 { Chained = "True"; } else { Chained = "False"; }
 
-            if (modifiers.Contains(" explosion") || modifiers.Contains(" explosionforbot") || modifiers.Contains(" realTargeting"))
-                { Detail = "Explosion"; }
+            if (modifiers.Contains(" explosion") || modifiers.Contains(" explosionforbot") || modifiers.Contains(" realtargeting"))
+                { Detail = "Boom"; }
 
             if (modifiers.Contains("01") && ((sType.Contains("combo") || modifiers.Contains(" shortairreaction")))&&(!BaseName.Contains("thunder drake")))
             {
@@ -83,10 +93,10 @@ namespace TeraDataExtractor
                 { Detail = "Off"; }
 
             if (modifiers.Contains(" superarmor"))
-                { Detail = "SuperArmor"; }
+                { Detail = "SA"; }
 
             if (modifiers.Contains(" fury"))
-                { Detail = "FURY"; }
+                { Detail = "Fury"; }
 
         }
         public string BaseName { get; }
@@ -94,6 +104,7 @@ namespace TeraDataExtractor
 
         public string Chained { get; }
         public string SkillId { get; }
+        public string Lvl { get; }
         private string sType { get; }
 
         public string Detail { get; } //hit number or other comment, such as "Explosion"
@@ -103,7 +114,12 @@ namespace TeraDataExtractor
             " PositionSwap"," Activate"," Invoke"," LockOn"," Charge"," Moving"," Shot"," OverShot"," ON"," OFF"," Attack"," Single",
             " Chain"," Connect"," Long"," Short"," Use"," FURY"," Evade"," False"," True"," Drain"," Cancel"," ShortAirReaction",
             " Change"," immediateCancel"," rearCancel"," Connector"," SuperArmor"," RangeTarget"," Loop"," forOnlyEffect",
-            " forSummon"," forDamage"};
+            " forSummon"," forDamage", " forBot"};
+
+        private static Dictionary<string, string> levels = new Dictionary<string, string>
+        { {" lv01"," I"},{" lv02"," II"},{" lv03"," III"},{" lv04"," IV"},{" lv05"," V"},{" lv06"," VI"},{" lv07"," VII"},{" lv08"," VIII"},{" lv09"," IX"},{" lv10"," X"},
+          {" lv11"," XI"},{" lv12"," XII"},{" lv13"," XIII"},{" lv14"," XIV"},{" lv15"," XV"},{" lv16"," XVI"},{" lv17"," XVII"},{" lv18"," XVIII"},{" lv19"," XIX"},{" lv20"," XX"}};
+
         //01_Start = start chained multihit skills (connect = connectNextSkill=id)
         //01 02 03 04 etc = multihit combo hit number
         //Continuous = chained
@@ -116,6 +132,7 @@ namespace TeraDataExtractor
         //Projectile_Flying = initial damage
         //Projectile_Explosion
         //Projectile_ExplosionforBot
+        //Projectile_forBot
         //PositionSwap
         //Activate= start counterattack
         //Invoke= invoke counterattack

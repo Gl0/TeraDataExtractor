@@ -73,6 +73,5 @@ namespace TeraDataExtractor
         {
             return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x.ToLower());
         }
-
     }
 }
