@@ -118,7 +118,7 @@ namespace TeraDataExtractor
                            join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
                            join sl in skilllist on new { cs.skillid, cs.PClass } equals new { skillid = sl.Id, sl.PClass } into uskills
                            from uskill in uskills.DefaultIfEmpty(new Skill("","","","",""))
-                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, RemoveLvl(uskill.Name == "" ? itp.Name : uskill.Name)+cs.p_skill.Lvl,cs.p_skill.Chained,cs.p_skill.Detail)).ToList();
+                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name, cs.p_skill.Lvl) : uskill.Name,cs.p_skill.Chained,cs.p_skill.Detail)).ToList();
                          
         }
         private string cut_name(string internalname, out List<string> modifiers)
@@ -172,21 +172,40 @@ namespace TeraDataExtractor
             }
         }
 
-        private string RemoveLvl(string Name)
+        private string ChangeLvl(string Name,string Lvl)
         {
             string res = Name;
+            if (res.EndsWith("-1"))
+            {
+                int a = 0;
+                for (int i = 0; i < Lvl.Length; i++)
+                {
+                    char ch = Lvl[i];
+                    if (ch == 'V')
+                        a += 5;
+                    else if (ch == 'I')
+                    {
+                        if ((i + 1 < Lvl.Length) && (Lvl[i + 1] == 'V'))
+                            a -= 1;
+                        else a += 1;
+                    }
+                }
+                res = res.Substring(0, res.Length - 1)+ a.ToString();
+                return res;
+            }
+
             foreach (string lvl in lvls)
             {
                 if (res.EndsWith(lvl))
                 {
-                    res = res.Substring(0, res.Length - lvl.Length);
+                    res = res.Substring(0, res.Length - lvl.Length)+Lvl;
                     break;
                 }
             }
             return res;
         }
         private static List<string> lvls = new List<string> { " I", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X",
-            " XI", " XII", " XIII", " XIV", " XV", " XVI", " XVII", " XVIII", " XIX", " XX" };
+            " XI", " XII", " XIII", " XIV", " XV", " XVI", " XVII", " XVIII", " XIX", " XX"};
 
         private string ClassConv(string PClass)
         {
