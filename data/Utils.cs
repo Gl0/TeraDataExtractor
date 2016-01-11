@@ -32,6 +32,19 @@ namespace TeraDataExtractor
             return _getHashCode != null ? _getHashCode(obj) : obj.GetHashCode();
         }
     }
+    class FunctorComparer<T> : IComparer<T>
+    {
+        private readonly Func<T, T, int> _IComparer;
+        public FunctorComparer(Func<T, T, int> icomparer)
+        {
+            _IComparer = icomparer;
+        }
+        public int Compare(T x,T y)
+        {
+            return _IComparer(x, y);
+        }
+        
+    }
 
     static class Extension
     {
@@ -54,6 +67,10 @@ namespace TeraDataExtractor
             Func<T, T, bool> equals)
         {
             return items.Union(newitems,new FunctorEqualityComparer<T>(equals, null));
+        }
+        public static void Sort<T>(this List<T> items, Func<T, T, int> comparer)
+        {
+            items.Sort(new FunctorComparer<T>(comparer));
         }
         public static bool RemoveFromEnd(this string s, string suffix,out string left)
         {

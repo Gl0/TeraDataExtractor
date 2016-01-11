@@ -145,11 +145,13 @@ namespace TeraDataExtractor
                     Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Item/"))
             {
                 var xml = XDocument.Load(file);
-                var namedata = (from item in xml.Root.Elements("String") let nameid = item.Attribute("id").Value let name = item.Attribute("string").Value where nameid != "" && name != "" select new { nameid, name });
-                ItemNames = ItemNames.Union(namedata, (x, y) => x.nameid == y.nameid, x => x.nameid.GetHashCode()).ToList();
+                var namedata = (from item in xml.Root.Elements("String") let nameid = item.Attribute("id").Value let name = item.Attribute("string").Value where nameid != "" && name != "" && name!= "[TBU]"&& name!= "TBU_new_in_V24" select new { nameid, name }).ToList();
+                ItemNames.AddRange(namedata);
             }
             var Items = (from item in ItemSkills join nam in ItemNames on item.nameid equals nam.nameid orderby item.skillid where nam.name!="" select new Skill(item.skillid,"Common","Common","Common", nam.name)).ToList();
-            skilllist=skilllist.Union(Items).ToList();
+            Items.Sort((x, y) => CompareItems(x.Id,y.Id,x.Name,y.Name));
+            Items=Items.Distinct((x, y) => x.Id == y.Id, x => x.Id.GetHashCode()).ToList();
+            skilllist = skilllist.Union(Items).ToList();
         }
 
         private void RawExtract()
@@ -170,6 +172,34 @@ namespace TeraDataExtractor
                                  select new Skill( id, race, gender, PClass, name )).ToList();
                 skilllist = skilllist.Union(skilldata).ToList();
             }
+        }
+
+        private static int CompareItems(string idx, string idy, string x, string y)
+        {
+            if (idx == idy)
+            {
+                if (x == null)
+                {
+                    if (y == null) return 0;
+                    else return -1;
+                }
+                else
+                {
+                    if (y == null)
+                        return 1;
+                    else
+                    {
+                        if (idx.StartsWith("60246")) { string t = x; x = y; y = t; } ///Greater charms
+                        int retval = x.Length.CompareTo(y.Length);
+
+                        if (retval != 0)
+                            return retval;
+                        else
+                            return x.CompareTo(y);
+                    }
+                }
+            }
+            else return idx.CompareTo(idy);
         }
 
         private string ChangeLvl(string Name,string Lvl)
