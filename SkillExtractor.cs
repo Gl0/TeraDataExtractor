@@ -227,9 +227,9 @@ namespace TeraDataExtractor
 
             foreach (string lvl in lvls)
             {
-                if (res.EndsWith(lvl))
+                if (res.Contains(lvl))
                 {
-                    res = res.Substring(0, res.Length - lvl.Length)+Lvl;
+                    res = res.Replace(lvl,Lvl);
                     break;
                 }
             }
