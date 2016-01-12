@@ -149,7 +149,8 @@ namespace TeraDataExtractor
                 ItemNames.AddRange(namedata);
             }
             var Items = (from item in ItemSkills join nam in ItemNames on item.nameid equals nam.nameid orderby item.skillid where nam.name!="" select new Skill(item.skillid,"Common","Common","Common", nam.name)).ToList();
-            Items.Sort((x, y) => CompareItems(x.Id,y.Id,x.Name,y.Name));
+            if (_region=="RU") // shortest names only for RU region since other have non localized names or less descriptive names.
+                Items.Sort((x, y) => CompareItems(x.Id,y.Id,x.Name,y.Name));
             Items=Items.Distinct((x, y) => x.Id == y.Id, x => x.Id.GetHashCode()).ToList();
             skilllist = skilllist.Union(Items).ToList();
         }
