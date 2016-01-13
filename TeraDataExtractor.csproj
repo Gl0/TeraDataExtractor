@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="data\Dot.cs" />
+    <Compile Include="DotExtractor.cs" />
     <Compile Include="data\ParsedSkill.cs" />
     <Compile Include="data\Monster.cs" />
     <Compile Include="data\Skill.cs" />
