@@ -30,7 +30,7 @@ namespace TeraDataExtractor
         private void RawExtract()
         {
 
-            var Dots = "".Select(t => new { abnormalid = string.Empty, effectid = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty }).ToList();
+            var Dots = "".Select(t => new { abnormalid = string.Empty, effectid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))
@@ -38,15 +38,15 @@ namespace TeraDataExtractor
                 var xml = XDocument.Load(file);
                 var Dotdata = (from item in xml.Root.Elements("Abnormal")
                                let abnormalid = item.Attribute("id").Value
-                               let time = item.Attribute("time").Value
+                               let time = item.Attribute("infinity").Value=="True"?"0":item.Attribute("time").Value
                                from eff in item.Elements("AbnormalityEffect")
                                let type = eff.Attribute("type") == null ? "0" : eff.Attribute("type").Value
                                let method = eff.Attribute("method") == null ? "0" : eff.Attribute("method").Value
-                               let effectid = eff.Attribute("effectId") == null ? "" : eff.Attribute("effectId").Value
+                               let effectid = eff.Attribute("effectId") == null ? "0" : eff.Attribute("effectId").Value
                                let amount = eff.Attribute("value") == null ? "0" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where abnormalid != "" && time != "0" && type == "51" && tick != "0" && effectid != "" && amount != "0" && method != "0"
-                               select new { abnormalid, effectid, amount, method, time, tick }).ToList();
+                               where (type == "51"||type=="52") && tick != "0" && amount != "0" && amount != "0.0" && method != "0"
+                               select new { abnormalid, effectid, type, amount, method, time, tick }).ToList();
                 Dots = Dots.Union(Dotdata).ToList();
             }
             var Names = "".Select(t => new { abnormalid = string.Empty, name = string.Empty }).ToList();
@@ -64,7 +64,7 @@ namespace TeraDataExtractor
             }
             Dotlist = (from dot in Dots
                        join nam in Names on dot.abnormalid equals nam.abnormalid
-                       select new HotDot(int.Parse(dot.abnormalid), dot.effectid, double.Parse(dot.amount), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name)).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.effectid, dot.type, double.Parse(dot.amount), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name)).ToList();
         }
     }
 }
