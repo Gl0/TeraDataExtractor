@@ -18,7 +18,7 @@ namespace TeraDataExtractor
             _region = region;
             Dotlist = new List<HotDot>();
             RawExtract();
-            var outputFile = new StreamWriter("DATA/hotdot-" + _region + ".txt");
+            var outputFile = new StreamWriter("DATA/hotdot-" + _region + ".tsv");
             foreach (HotDot line in Dotlist)
             {
                 outputFile.WriteLine(line.ToString());
