@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
 using System.Linq;
@@ -64,7 +65,7 @@ namespace TeraDataExtractor
             }
             Dotlist = (from dot in Dots
                        join nam in Names on dot.abnormalid equals nam.abnormalid
-                       select new HotDot(int.Parse(dot.abnormalid), dot.effectid, dot.type, double.Parse(dot.amount), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name)).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.effectid, dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name)).ToList();
         }
     }
 }
