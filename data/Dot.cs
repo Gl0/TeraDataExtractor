@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace TeraDataExtractor
         }
         public override string ToString()
         {
-            return AbnormalId + "\t" + effectID + "\t" + HPChange + "\t" + MPChange + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Name;
+            return AbnormalId + "\t" + effectID + "\t" + HPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Name;
         }
     }
 }
