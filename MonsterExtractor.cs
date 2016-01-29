@@ -74,7 +74,7 @@ namespace TeraDataExtractor
             {
                 xml = XDocument.Load(file);
                 var areadata = (from area in xml.Root.Document.Elements("Area") let idcont = area.Attribute("continentId").Value let nameid = area.Attribute("nameId").Value where idcont != "" && nameid != "" select new { idcont, nameid });
-                contToStr = contToStr.Union(areadata, (x, y) => x.idcont == y.idcont,x => x.idcont.GetHashCode()).ToList();
+                contToStr = contToStr.Union(areadata).ToList();
             }
 
             xml = XDocument.Load(RootFolder + _region + "/StrSheet_Dungeon/StrSheet_Dungeon-0.xml");
@@ -85,14 +85,16 @@ namespace TeraDataExtractor
                          from rg in regn
                          join dun in dundata on contn.idcont equals dun.idcont into regdun
                          from rd in regdun.DefaultIfEmpty()
-                            select new { idcont = contn.idcont, regname = rd == null ? rg.regname : rd.dunname }).ToList();
+                            select new { idcont = contn.idcont, regname = rd == null ? rg.regname : rd.dunname ,nameid = contn.nameid}).ToList();
 
             var zonedata= ( from rd in regdd
                             from cont in contdata
                             where rd.idcont == cont.idcont 
                             let idzone= Convert.ToInt32(cont.idzone) let battle = cont.battle
-                            orderby idzone
-                            select new { Id=idzone, Name=rd.regname,battle } ).ToList();
+                            let prio= (!rd.nameid.StartsWith(cont.idzone))
+                            orderby idzone,prio
+                            select new { Id=idzone, Name=rd.regname,battle} ).ToList();
+            zonedata=zonedata.Distinct((x, y) => x.Id == y.Id, (x) => x.Id.GetHashCode()).ToList();
             using (StreamWriter outputFile = new StreamWriter("data/cont.csv"))
             {
                 foreach (var line in zonedata)
