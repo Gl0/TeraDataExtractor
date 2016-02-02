@@ -62,9 +62,35 @@ namespace TeraDataExtractor
                                 select new { abnormalid, name }).ToList();
                 Names = Names.Union(Namedata, (x, y) => x.abnormalid == y.abnormalid, x => x.abnormalid.GetHashCode()).ToList();
             }
+
+            var xml1 = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
+            var templates = (from races in xml1.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = SkillExtractor.ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
+            //assume skills for different races and genders are the same per class 
+            templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
+            var ChainSkills = "".Select(t => new { PClass = string.Empty, skillid = string.Empty, p_skill = new ParsedSkill(string.Empty, string.Empty, string.Empty),abid=string.Empty }).ToList();
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
+            {
+                var xml = XDocument.Load(file);
+                var chaindata = (from temp in templates
+                                 join skills in xml.Root.Elements("Skill") on temp.templateId equals skills.Attribute("templateId").Value into Pskills
+                                 from Pskill in Pskills
+                                 let PClass = temp.PClass
+                                 let skillid = Pskill.Attribute("id").Value
+                                 let p_skill = new ParsedSkill(Pskill.Attribute("name").Value, skillid, (Pskill.Attribute("connectNextSkill") == null) ? Pskill.Attribute("type").Value : Pskill.Attribute("type").Value + "_combo")
+                                 from abns in Pskill.Descendants().Where(x=> x.Name=="AbnormalityOnPvp"||x.Name == "AbnormalityOnCommon")
+                                 let abid = abns.Attribute("id")==null? "": abns.Attribute("id").Value
+                                 where PClass != "" && skillid != "" && abid != ""
+                                 select new { PClass, skillid, p_skill,abid });
+                ChainSkills = ChainSkills.Union(chaindata, (x, y) => (x.skillid == y.skillid) && (x.PClass == y.PClass)&&(x.abid==y.abid), x => (x.PClass + x.skillid + x.abid).GetHashCode()).ToList();
+            }
+            
             Dotlist = (from dot in Dots
                        join nam in Names on dot.abnormalid equals nam.abnormalid
-                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name)).ToList();
+                       join skills in ChainSkills on dot.abnormalid equals skills.abid into pskills
+                       from pskill in pskills.DefaultIfEmpty()
+                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name, pskill==null?"":pskill.skillid, pskill == null ? "" : pskill.PClass)).ToList();
         }
     }
 }

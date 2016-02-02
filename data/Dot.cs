@@ -30,8 +30,10 @@ namespace TeraDataExtractor
         public int Tick { get; set; } //tick time in sec
         public string Name { get; set; }
         public double Amount { get; set; }
+        public string PClass { get; set; }
+        public string Skillid { get; set; }
 
-        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name)
+        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name,string skillid,string pclass)
         {
             AbnormalId = abnormalid;
             _type = (types) Enum.Parse(typeof(types),type);
@@ -42,10 +44,12 @@ namespace TeraDataExtractor
             Tick = tick;
             Amount = amount;
             Name = name;
+            Skillid = skillid;
+            PClass = pclass;
         }
         public override string ToString()
         {
-            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("F", CultureInfo.InvariantCulture) + "\t" +Name;
+            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("F", CultureInfo.InvariantCulture)+"\t" + Name + "\t" + Skillid + "\t" + PClass;
         }
     }
 }

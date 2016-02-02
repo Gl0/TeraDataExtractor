@@ -238,7 +238,7 @@ namespace TeraDataExtractor
         private static List<string> lvls = new List<string> { " I", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X",
             " XI", " XII", " XIII", " XIV", " XV", " XVI", " XVII", " XVIII", " XIX", " XX"};
 
-        private string ClassConv(string PClass)
+        public static string ClassConv(string PClass)
         {
             string Title = PClass.Cap();
             if (Title == "Elementalist")
