@@ -9,15 +9,42 @@ namespace TeraDataExtractor
 {
     public enum methods
     {
-        abs = 2, //each tick  HP +=HPChange ; MP += MPChange
-        perc = 3  // each tick  HP += MaxHP*HPChange; MP += MaxMP*MPChange
+        seta = 1, // ?set abs stat value
+        abs  = 2, // each tick  HP +=HPChange ; MP += MPChange
+        perc = 3, // each tick  HP += MaxHP*HPChange; MP += MaxMP*MPChange
+        setp = 4  // ?set % stat value
     }
 
     public enum types
     {
-        HPChange=51,
-        MPChange=52,
-        Endurance=4
+        Power = 3,
+        Endurance = 4,
+        MovSpd = 5,
+        Crit = 6,
+        CritResist = 7,
+        Ballance = 9,
+        WeakResist = 14,
+        DotResist = 15,
+        StunResist = 16, //something strange, internal itemname sleep_protect, but user string is stun resist, russian user string is "control effect resist"
+        AllResist = 18,
+        CritPower = 19,
+        Aggro = 20,
+        NoMPDecay = 21, //slayer
+        Attack = 22, //total damage modificator
+        XPBoost = 23,
+        ASpd = 24,
+        //25,210 = disable evasion and moving skills, not sure who is who
+        CraftTime=26,
+        OutOfCombatMovSpd = 27,
+        //28 = Something comming with MovSpd debuff skills, fxp 32% MovSpd debuff from Lockdown Blow IV, give also 12% of this kind
+        //29 = something strange when using Lethal Strike
+        Stamina = 30,
+        Gathering = 31,
+        HPChange = 51,
+        MPChange = 52,
+        RageChange = 53,
+        StaminaDecay = 207 //
+        //280 50% rage = value 1.5??
     }
     class HotDot
     {
