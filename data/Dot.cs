@@ -9,6 +9,7 @@ namespace TeraDataExtractor
 {
     public enum methods
     {
+        swch = 0, // switch on for noctineum
         seta = 1, // ?set abs stat value
         abs  = 2, // each tick  HP +=HPChange ; MP += MPChange
         perc = 3, // each tick  HP += MaxHP*HPChange; MP += MaxMP*MPChange
@@ -43,6 +44,11 @@ namespace TeraDataExtractor
         HPChange = 51,
         MPChange = 52,
         RageChange = 53,
+        //108,168 something came along with noctineum
+        DefPotion = 104, //- incoming damage %
+        AtkPotion = 162, //+ outgoing damage %
+        Noctenium = 203, //different values for different kinds of Noctenium, not sure what for =)
+
         StaminaDecay = 207 //
         //280 50% rage = value 1.5??
     }

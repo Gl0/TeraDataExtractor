@@ -32,6 +32,7 @@ namespace TeraDataExtractor
         {
 
             var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty }).ToList();
+            var interesting = new string[] { "3", "4", "6", "19", "22", "24", "104" , "162" , "203" };
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))
@@ -42,10 +43,10 @@ namespace TeraDataExtractor
                                let time = item.Attribute("infinity").Value=="True"?"0":item.Attribute("time").Value
                                from eff in item.Elements("AbnormalityEffect")
                                let type = eff.Attribute("type") == null ? "0" : eff.Attribute("type").Value
-                               let method = eff.Attribute("method") == null ? "0" : eff.Attribute("method").Value
+                               let method = eff.Attribute("method") == null ? "" : eff.Attribute("method").Value
                                let amount = eff.Attribute("value") == null ? "0" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51"||type=="52") && tick != "0")||type == "4") && amount != "0" && amount != "0.0" && method != "0"
+                               where (((type == "51"||type=="52") && tick != "0")|| interesting.Contains(type) ) && amount != "0" && amount != "0.0" && method != ""
                                select new { abnormalid, type, amount, method, time, tick }).ToList();
                 Dots = Dots.Union(Dotdata).ToList();
             }
