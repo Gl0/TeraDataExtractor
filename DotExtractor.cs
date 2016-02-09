@@ -32,7 +32,7 @@ namespace TeraDataExtractor
         {
 
             var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty }).ToList();
-            var interesting = new string[] { "3", "4", "6", "19", "22", "24", "104" , "162" , "203" };
+            var interesting = new string[] { "3", "4", "6", "19", "22", "24", "104" , "162" , "203" , "210", "208" , "283" };
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))
@@ -44,9 +44,9 @@ namespace TeraDataExtractor
                                from eff in item.Elements("AbnormalityEffect")
                                let type = eff.Attribute("type") == null ? "0" : eff.Attribute("type").Value
                                let method = eff.Attribute("method") == null ? "" : eff.Attribute("method").Value
-                               let amount = eff.Attribute("value") == null ? "0" : eff.Attribute("value").Value
+                               let amount = eff.Attribute("value") == null ? "" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51"||type=="52") && tick != "0")|| interesting.Contains(type) ) && amount != "0" && amount != "0.0" && method != ""
+                               where (((type == "51"||type=="52") && tick != "0")|| interesting.Contains(type) ) && amount != "" && method != ""
                                select new { abnormalid, type, amount, method, time, tick }).ToList();
                 Dots = Dots.Union(Dotdata).ToList();
             }
@@ -91,6 +91,8 @@ namespace TeraDataExtractor
                        join nam in Names on dot.abnormalid equals nam.abnormalid
                        join skills in ChainSkills on dot.abnormalid equals skills.abid into pskills
                        from pskill in pskills.DefaultIfEmpty()
+                       where (nam.name != "" || pskill != null)
+                       orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
                        select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name, pskill==null?"":pskill.skillid, pskill == null ? "" : pskill.PClass)).ToList();
         }
     }

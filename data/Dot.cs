@@ -9,7 +9,7 @@ namespace TeraDataExtractor
 {
     public enum methods
     {
-        swch = 0, // switch on for noctineum
+        swch = 0, // switch on for noctineum ? other strange uses.
         seta = 1, // ?set abs stat value
         abs  = 2, // each tick  HP +=HPChange ; MP += MPChange
         perc = 3, // each tick  HP += MaxHP*HPChange; MP += MaxMP*MPChange
@@ -45,12 +45,16 @@ namespace TeraDataExtractor
         MPChange = 52,
         RageChange = 53,
         //108,168 something came along with noctineum
-        DefPotion = 104, //- incoming damage %
-        AtkPotion = 162, //+ outgoing damage %
+        DefPotion = 104, //or glyph: - incoming damage %
+        AtkPotion = 162, //or glyph: + outgoing damage %
         Noctenium = 203, //different values for different kinds of Noctenium, not sure what for =)
-
-        StaminaDecay = 207 //
-        //280 50% rage = value 1.5??
+        StaminaDecay = 207,
+        CDR = 208,
+        Block = 210, //frontal block ? Not sure, the ability to use block, or blocking stance
+        Range = 259, //increase melee range? method 0 value 0.1= +10%
+        //264 = redirect abnormality, value= new abnormality, bugged due to wrong float format in xml.
+        Rage = 280, //tick - RageChange, notick (one change) - Rage 
+        SuperArmor = 283 
     }
     class HotDot
     {
