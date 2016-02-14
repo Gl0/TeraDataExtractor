@@ -40,13 +40,14 @@ namespace TeraDataExtractor
                 var xml = XDocument.Load(file);
                 var Dotdata = (from item in xml.Root.Elements("Abnormal")
                                let abnormalid = item.Attribute("id").Value
+                               let isShow = item.Attribute("isShow") == null ? "False" : item.Attribute("isShow").Value
                                let time = item.Attribute("infinity").Value=="True"?"0":item.Attribute("time").Value
                                from eff in item.Elements("AbnormalityEffect")
                                let type = eff.Attribute("type") == null ? "0" : eff.Attribute("type").Value
                                let method = eff.Attribute("method") == null ? "" : eff.Attribute("method").Value
                                let amount = eff.Attribute("value") == null ? "" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51"||type=="52") && tick != "0")|| interesting.Contains(type) ) && amount != "" && method != ""
+                               where (((type == "51"||type=="52") && tick != "0")|| (interesting.Contains(type)&& isShow !="False")) && amount != "" && method != ""
                                select new { abnormalid, type, amount, method, time, tick }).ToList();
                 Dots = Dots.Union(Dotdata).ToList();
             }
