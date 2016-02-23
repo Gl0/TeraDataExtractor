@@ -257,6 +257,10 @@ namespace TeraDataExtractor
             {
                 Title = "Brawler";
             }
+            if (Title == "Assassin")
+            {
+                Title = "Ninja";
+            }
             return Title;
         }
     }
