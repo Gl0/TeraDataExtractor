@@ -98,6 +98,23 @@ namespace TeraDataExtractor
             if (modifiers.Contains(" fury"))
                 { Detail = "Fury"; }
 
+            if (modifiers.Contains(" fail"))
+                { Detail = "Dash fail"; }
+
+            if (modifiers.Contains(" blast")&&(!BaseName.Contains("priest")))
+                { Detail = "Blast"; }
+
+            if (modifiers.Contains(" flying"))
+                { Detail = "forward"; }
+
+            if (modifiers.Contains(" return"))
+                { Detail = "backward"; }
+
+            if (modifiers.Contains(" stopping"))
+                { Detail = "stopping"; }
+
+            if (modifiers.Contains(" side"))
+                { Detail = "Side "+Detail; }
         }
         public string BaseName { get; }
         private List<string> modifiers { get; }
@@ -114,7 +131,7 @@ namespace TeraDataExtractor
             " PositionSwap"," Activate"," Invoke"," LockOn"," Charge"," Moving"," Shot"," OverShot"," ON"," OFF"," Attack"," Single",
             " Chain"," Connect"," Long"," Short"," Use"," FURY"," Evade"," False"," True"," Drain"," Cancel"," ShortAirReaction",
             " Change"," immediateCancel"," rearCancel"," Connector"," SuperArmor"," RangeTarget"," Loop"," forOnlyEffect",
-            " forSummon"," forDamage", " forBot"};
+            " forSummon"," forDamage", " forBot", " Side", " Fail", " Blast", " Return", " Stopping"};
 
         private static Dictionary<string, string> levels = new Dictionary<string, string>
         { {" lv01"," I"},{" lv02"," II"},{" lv03"," III"},{" lv04"," IV"},{" lv05"," V"},{" lv06"," VI"},{" lv07"," VII"},{" lv08"," VIII"},{" lv09"," IX"},{" lv10"," X"},
@@ -129,7 +146,7 @@ namespace TeraDataExtractor
         //Projectile 00 = when projectile generated from charged multihit (Shot 00) shot number -1 (sorcerer skillid ends on 0 while Projectile 01 = no multihit = ignore 01, Priest: projectile 02 = hit 2)
         //Projectile2 //can't find way to get to this skill with first way
         //Projectile3_RealTargeting //Explosion
-        //Projectile_Flying = initial damage
+        //Projectile_Flying = forward flying projectile
         //Projectile_Explosion
         //Projectile_ExplosionforBot
         //Projectile_forBot
@@ -180,6 +197,11 @@ namespace TeraDataExtractor
         //forOnlyEffect = projectile
         //Projectile_forSummon
         //Projectile_forDamage 
-
+        //Side Ninja side attack
+        //Fail Ninja Dash fail
+        //Blast Ninja Blast projectile
+        //Flying projectile Flying forward
+        //Return Ninja projectile Flying backward
+        //Stopping Ninga stopping projectile
     }
 }

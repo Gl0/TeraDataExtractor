@@ -168,7 +168,7 @@ namespace TeraDataExtractor
                                  let race = item.Attribute("race").Value
                                  let gender = item.Attribute("gender").Value
                                  let PClass = (item.Attribute("class")==null)?"": ClassConv(item.Attribute("class").Value)
-                                 let name = item.Attribute("name").Value
+                                 let name = (item.Attribute("name") == null) ? "" : item.Attribute("name").Value
                                  where id != "" && race != "" && gender != "" && name != "" && PClass != ""
                                  select new Skill( id, race, gender, PClass, name )).ToList();
                 skilllist = skilllist.Union(skilldata).ToList();
