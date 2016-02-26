@@ -20,6 +20,7 @@ namespace TeraDataExtractor
                 _cut = false;
                 foreach (string mod in allmods)
                 {
+                    if ((mod == " blast") && cut.Contains("priest")) continue;// fix holy shot=holy blast
                     if (cut.RemoveFromEnd(mod, out cut))
                     {
                         modifiers.Add(mod);

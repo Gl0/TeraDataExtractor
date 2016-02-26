@@ -24,15 +24,16 @@ namespace TeraDataExtractor
             chained_skills();
             item_Skills();
             loadoverride();
-            var outputFile = new StreamWriter("DATA/skills-" + _region + ".txt");
+            skilllist.Sort();
+//            var outputFile = new StreamWriter("DATA/skills-" + _region + ".txt");
             var outputTFile = new StreamWriter("DATA/skills-" + _region + ".tsv");
             foreach (Skill line in skilllist)
             {
                 outputTFile.WriteLine(line.toTSV());
-                outputFile.WriteLine(line.toSSV());
+//                outputFile.WriteLine(line.toSSV());
             }
-            outputFile.Flush();
-            outputFile.Close();
+//            outputFile.Flush();
+//            outputFile.Close();
             outputTFile.Flush();
             outputTFile.Close();
             //            SkillsFormat();
@@ -114,12 +115,12 @@ namespace TeraDataExtractor
             var IntToPub = (from cs in ChainSkills join sl in skilllist on new { cs.PClass, cs.skillid } equals new { sl.PClass, skillid = sl.Id } into itps
                             from itp in itps select new { cs.p_skill.BaseName, itp.Name }).ToList();
             IntToPub.Distinct((x,y)=>x.BaseName==y.BaseName,x=>x.BaseName.GetHashCode());
-            skilllist = (from cs in ChainSkills
+            var chainedlist = (from cs in ChainSkills
                            join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
                            join sl in skilllist on new { cs.skillid, cs.PClass } equals new { skillid = sl.Id, sl.PClass } into uskills
                            from uskill in uskills.DefaultIfEmpty(new Skill("","","","",""))
                            select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name, cs.p_skill.Lvl) : uskill.Name,cs.p_skill.Chained,cs.p_skill.Detail)).ToList();
-                         
+            skilllist = chainedlist.Union(skilllist).ToList();
         }
         private string cut_name(string internalname, out List<string> modifiers)
         {
@@ -152,7 +153,7 @@ namespace TeraDataExtractor
             if (_region=="RU") // shortest names only for RU region since other have non localized names or less descriptive names.
                 Items.Sort((x, y) => CompareItems(x.Id,y.Id,x.Name,y.Name));
             Items=Items.Distinct((x, y) => x.Id == y.Id, x => x.Id.GetHashCode()).ToList();
-            skilllist = skilllist.Union(Items).ToList();
+            skilllist = Items.Union(skilllist).ToList();
         }
 
         private void RawExtract()

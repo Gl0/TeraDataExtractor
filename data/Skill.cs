@@ -2,7 +2,7 @@
 
 namespace TeraDataExtractor
 {
-    public class Skill : IEquatable <Skill>
+    public class Skill : IComparable<Skill>
     {
         public Skill(string id, string race, string gender,string pclass,string name)
         {
@@ -41,14 +41,14 @@ namespace TeraDataExtractor
             return (hit==0)?"":(hit+1).ToString()+" hit";
         }
         public override int GetHashCode() {
-            return (PClass + Id).GetHashCode();
+            return (Race + PClass + Id).GetHashCode();
         }
         public static bool operator ==(Skill x, Skill y) {
             if ((object)y == null)
             {
                 return false;
             }
-            return (x.PClass == y.PClass) && (x.Id == y.Id);
+            return x.Equals(y);
         }
         public static bool operator !=(Skill x, Skill y)
         {
@@ -64,7 +64,7 @@ namespace TeraDataExtractor
             {
                 return false;
             }
-            return (PClass == y.PClass) && (Id == y.Id);
+            return (Race == y.Race) && (PClass == y.PClass) && (Id == y.Id);
         }
         public override bool Equals(object obj)
         {
@@ -77,11 +77,17 @@ namespace TeraDataExtractor
             {
                 return false;
             }
-            return (PClass == p.PClass) && (Id == p.Id);
+            return this.Equals(p);
         }
         public override string ToString()
         {
             return toCSV();
+        }
+
+        public int CompareTo(Skill y)
+        {
+            if (y == null) return 1;
+            return (PClass == y.PClass) ? int.Parse(Id).CompareTo(int.Parse(y.Id)) : (y.PClass == "Common") ? -1 : (PClass == "Common") ? 1 : string.Compare(PClass, y.PClass);
         }
     }
 }
