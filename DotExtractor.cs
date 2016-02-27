@@ -12,12 +12,11 @@ namespace TeraDataExtractor
     {
         private readonly string _region;
         private const string RootFolder = "j:/c/Extract/";
-        private List<HotDot> Dotlist;
+        private List<HotDot> Dotlist = new List<HotDot>();
 
         public DotExtractor(string region)
         {
             _region = region;
-            Dotlist = new List<HotDot>();
             RawExtract();
             var outputFile = new StreamWriter("DATA/hotdot-" + _region + ".tsv");
             foreach (HotDot line in Dotlist)
@@ -87,14 +86,40 @@ namespace TeraDataExtractor
                                  select new { PClass, skillid, p_skill,abid });
                 ChainSkills = ChainSkills.Union(chaindata, (x, y) => (x.skillid == y.skillid) && (x.PClass == y.PClass)&&(x.abid==y.abid), x => (x.PClass + x.skillid + x.abid).GetHashCode()).ToList();
             }
-            
+
+            xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
+            var Glyphs = (from item in xml1.Root.Elements("String")
+                         let passiveid = item.Attribute("id").Value
+                         let name = item.Attribute("name").Value
+                         select new { passiveid, name });
+            //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
+            var Passives = "".Select(t => new { abnormalid = string.Empty, name = string.Empty }).ToList();
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/Passivity/"))
+            {
+                var xml = XDocument.Load(file);
+                var PassiveData = (from item in xml.Root.Elements("Passive")
+                                   let abnormalid = item.Attribute("value").Value
+                                   let passiveid = item.Attribute("id").Value
+                                   let type = item.Attribute("type").Value
+                                   join glyph in Glyphs on passiveid equals glyph.passiveid
+                                   where abnormalid != "" && (type =="209" || type == "210" || type=="156" || type == "157" || type == "80" || type == "232" || type == "106")
+                                   && abnormalid != "500100"
+                                   select new { abnormalid, glyph.name }).ToList();
+                Passives = Passives.Union(PassiveData, (x, y) => (x.abnormalid == y.abnormalid), x => x.abnormalid.GetHashCode()).ToList();
+            }
+
             Dotlist = (from dot in Dots
                        join nam in Names on dot.abnormalid equals nam.abnormalid
                        join skills in ChainSkills on dot.abnormalid equals skills.abid into pskills
-                       from pskill in pskills.DefaultIfEmpty()
-                       where (nam.name != "" || pskill != null)
+                       join glyph in Passives on dot.abnormalid equals glyph.abnormalid into gskills
+                       from pskill in pskills.DefaultIfEmpty() 
+                       from gskill in gskills.DefaultIfEmpty()
+
+                       where (nam.name != "" || pskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
-                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), nam.name, pskill==null?"":pskill.skillid, pskill == null ? "" : pskill.PClass)).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, pskill==null?"":pskill.skillid, pskill == null ? "" : pskill.PClass)).ToList();
         }
     }
 }
