@@ -13,6 +13,7 @@ namespace TeraDataExtractor
         private readonly string _region;
         private const string RootFolder = "j:/c/Extract/";
         private List<HotDot> Dotlist = new List<HotDot>();
+        private string[] _glyph = new string[]{ "Glyph", "Символ", "の紋章", "문장", "紋章" };
 
         public DotExtractor(string region)
         {
@@ -91,7 +92,8 @@ namespace TeraDataExtractor
             var Glyphs = (from item in xml1.Root.Elements("String")
                          let passiveid = item.Attribute("id").Value
                          let name = item.Attribute("name").Value
-                         select new { passiveid, name });
+                         let skillname = item.Attribute("skillName").Value
+                          select new { passiveid, name, skillname});
             //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
             var Passives = "".Select(t => new { abnormalid = string.Empty, name = string.Empty }).ToList();
             foreach (
@@ -106,7 +108,7 @@ namespace TeraDataExtractor
                                    join glyph in Glyphs on passiveid equals glyph.passiveid
                                    where abnormalid != "" && (type =="209" || type == "210" || type=="156" || type == "157" || type == "80" || type == "232" || type == "106")
                                    && abnormalid != "500100"
-                                   select new { abnormalid, glyph.name }).ToList();
+                                   select new { abnormalid, name=(isGlyph(glyph.name))?$"{glyph.skillname}({glyph.name})": glyph.name }).ToList();
                 Passives = Passives.Union(PassiveData, (x, y) => (x.abnormalid == y.abnormalid), x => x.abnormalid.GetHashCode()).ToList();
             }
 
@@ -120,6 +122,15 @@ namespace TeraDataExtractor
                        where (nam.name != "" || pskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
                        select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, pskill==null?"":pskill.skillid, pskill == null ? "" : pskill.PClass)).ToList();
+        }
+
+        private bool isGlyph(string name)
+        {
+            foreach (string gl in _glyph)
+            {
+                if (name.Contains(gl)) return true;
+            }
+            return false;
         }
     }
 }
