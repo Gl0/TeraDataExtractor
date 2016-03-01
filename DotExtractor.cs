@@ -12,14 +12,16 @@ namespace TeraDataExtractor
     {
         private readonly string _region;
         private const string RootFolder = "j:/c/Extract/";
+        private string OutFolder = Path.Combine(Program.OutputPath, "hotdot");
         private List<HotDot> Dotlist = new List<HotDot>();
         private string[] _glyph = new string[]{ "Glyph", "Символ", "の紋章", "문장", "紋章" };
 
         public DotExtractor(string region)
         {
             _region = region;
+            Directory.CreateDirectory(OutFolder);
             RawExtract();
-            var outputFile = new StreamWriter("DATA/hotdot-" + _region + ".tsv");
+            var outputFile = new StreamWriter(Path.Combine(OutFolder, $"hotdot-{_region}.tsv"));
             foreach (HotDot line in Dotlist)
             {
                 outputFile.WriteLine(line.ToString());

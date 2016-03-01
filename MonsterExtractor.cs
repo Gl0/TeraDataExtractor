@@ -17,10 +17,12 @@ namespace TeraDataExtractor
         private string _region;
 
         private readonly Dictionary<int, Zone> _zones = new Dictionary<int, Zone>();
-        private const string RootFolder = "j:/c/Extract/";
+        private string RootFolder = Program.SourcePath;
+        private string OutFolder = Path.Combine(Program.OutputPath, "monsters");
 
         public MonsterExtractor(string region)
         {
+            Directory.CreateDirectory(OutFolder);
             _region = region;
 		    Monsters();
             WriteXml();
@@ -28,7 +30,7 @@ namespace TeraDataExtractor
 
         private void WriteXml()
         {
-            using (var outputFile = new StreamWriter("data/monsters-" + _region + ".xml"))
+            using (var outputFile = new StreamWriter(Path.Combine(OutFolder, $"monsters-{_region}.xml")))
             {
                 outputFile.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                 outputFile.WriteLine("<Zones>");
@@ -95,13 +97,13 @@ namespace TeraDataExtractor
                             orderby idzone,prio
                             select new { Id=idzone, Name=rd.regname,battle} ).ToList();
             zonedata=zonedata.Distinct((x, y) => x.Id == y.Id, (x) => x.Id.GetHashCode()).ToList();
-            using (StreamWriter outputFile = new StreamWriter("data/cont.csv"))
-            {
-                foreach (var line in zonedata)
-                {
-                    outputFile.WriteLine("{0};{1}", line.Id, line.Name);
-                }
-            }
+            //using (StreamWriter outputFile = new StreamWriter("data/cont.csv"))
+            //{
+            //    foreach (var line in zonedata)
+            //    {
+            //        outputFile.WriteLine("{0};{1}", line.Id, line.Name);
+            //    }
+            //}
             xml = XDocument.Load(RootFolder + _region + "/StrSheet_Creature.xml");
             var mobdata = (from hunting in xml.Root.Elements("HuntingZone") let idzone = hunting.Attribute("id").Value from entity in hunting.Elements("String") let identity = entity.Attribute("templateId").Value let name = entity.Attribute("name").Value where name != "" && identity != "" && idzone != "" select new { idzone, identity, name }).ToList();
             var mobprop = "".Select(t => new { idzone = string.Empty, id=string.Empty,boss=false,maxHP=string.Empty,size=string.Empty }).ToList();
@@ -152,13 +154,14 @@ namespace TeraDataExtractor
                     }
                 }
             }
-            using (StreamWriter outputFile = new StreamWriter("data/npc.txt"))
-            {
-                foreach (var all in alldata) {
-                if (!_zones.ContainsKey(all.idzone))
+            //using (StreamWriter outputFile = new StreamWriter("data/npc.txt"))
+            //{
+                foreach (var all in alldata)
                 {
+                    if (!_zones.ContainsKey(all.idzone))
+                    {
                         _zones.Add(all.idzone, new Zone(all.idzone, all.regname));
-                }
+                    }
                     bool isboss = all.boss;
                     if (bossOverride.ContainsKey(all.idzone) && bossOverride[all.idzone].ContainsKey(all.identity))
                         isboss = bossOverride[all.idzone][all.identity];
@@ -168,9 +171,9 @@ namespace TeraDataExtractor
 
                     _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss));
 
-                    outputFile.WriteLine("{0} {1} {2} {3} {4}", all.idzone, all.identity, isboss, all.maxHP, name);
+                //    outputFile.WriteLine("{0} {1} {2} {3} {4}", all.idzone, all.identity, isboss, all.maxHP, name);
                 }
-            }
+            //}
         }
     }
 }

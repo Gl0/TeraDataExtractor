@@ -13,12 +13,14 @@ namespace TeraDataExtractor
     public class SkillExtractor
     {
         private readonly string _region;
-        private const string RootFolder = "j:/c/Extract/";
+        private string RootFolder = Program.SourcePath;
+        private string OutFolder = Path.Combine(Program.OutputPath, "skills");
         private List<Skill> skilllist;
 
         public SkillExtractor(string region)
         {
             _region = region;
+            Directory.CreateDirectory(OutFolder);
             skilllist = new List<Skill>();
             RawExtract();
             chained_skills();
@@ -26,7 +28,7 @@ namespace TeraDataExtractor
             loadoverride();
             skilllist.Sort();
 //            var outputFile = new StreamWriter("DATA/skills-" + _region + ".txt");
-            var outputTFile = new StreamWriter("DATA/skills-" + _region + ".tsv");
+            var outputTFile = new StreamWriter(Path.Combine(OutFolder, $"skills-{_region}.tsv"));
             foreach (Skill line in skilllist)
             {
                 outputTFile.WriteLine(line.toTSV());
@@ -40,9 +42,9 @@ namespace TeraDataExtractor
         }
         private void loadoverride()
         {
-            if (!File.Exists(RootFolder + "override/skills-override-" + _region + ".tsv"))
+            if (!File.Exists(Path.Combine(RootFolder,$"override/skills-override-{_region}.tsv")))
                 return;
-            var reader = new StreamReader(File.OpenRead(RootFolder + "override/skills-override-" + _region + ".tsv"));
+            var reader = new StreamReader(File.OpenRead(Path.Combine(RootFolder,$"override/skills-override-{_region}.tsv")));
             List<Skill> skilllist1 = new List<Skill>();
             while (!reader.EndOfStream)
             {
