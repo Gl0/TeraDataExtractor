@@ -42,12 +42,12 @@ namespace TeraDataExtractor
                     }
                     outputFile.Write("\t<Zone ");
                     outputFile.Write("id=\"" + zone.Id + "\" ");
-                    outputFile.Write("name=\"" + zone.Name.Replace("\"", "'").Replace("&nbsp;", " ") + "\" ");
+                    outputFile.Write("name=\"" + zone.Name.Replace("\"", "'").Replace("&nbsp;", " ").Trim() + "\" ");
                     outputFile.WriteLine(">");
                     foreach (var monster in zone.Monsters)
                     {
                         outputFile.Write("\t\t<Monster ");
-                        outputFile.Write("name=\"" + monster.Value.Name.Replace("\"", "'").Replace("&nbsp;", " ") + "\" ");
+                        outputFile.Write("name=\"" + monster.Value.Name.Replace("\"", "'").Replace("&nbsp;", " ").Trim() + "\" ");
                         outputFile.Write("id=\"" + monster.Value.Id + "\" ");
                         outputFile.Write(monster.Value.IsBoss ? "isBoss=\"True\" " : "isBoss=\"False\" ");
                         outputFile.Write("hp=\"" + monster.Value.Hp + "\" ");
