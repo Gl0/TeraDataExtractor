@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharmExtractor.cs" />
     <Compile Include="data\Dot.cs" />
     <Compile Include="DotExtractor.cs" />
     <Compile Include="data\ParsedSkill.cs" />
