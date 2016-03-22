@@ -34,7 +34,7 @@ namespace TeraDataExtractor
         {
 
             var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty }).ToList();
-            var interesting = new string[] { "3", "4", "6", "19", "22", "24", "104" , "162" , "203" , "210", "208" , "283" };
+            var interesting = new string[] { "3", "4", "6", "19", "22", "24","30", "104" , "162" , "203" , "207", "210", "208" , "283" };
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))

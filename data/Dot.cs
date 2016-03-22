@@ -51,6 +51,7 @@ namespace TeraDataExtractor
         StaminaDecay = 207,
         CDR = 208,
         Block = 210, //frontal block ? Not sure, the ability to use block, or blocking stance
+        IncreasedHeal = 105,
         Range = 259, //increase melee range? method 0 value 0.1= +10%
         //264 = redirect abnormality, value= new abnormality, bugged due to wrong float format in xml.
         Rage = 280, //tick - RageChange, notick (one change) - Rage 
