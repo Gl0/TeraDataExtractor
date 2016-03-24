@@ -28,6 +28,7 @@ namespace TeraDataExtractor
             {
                 outputTFile.WriteLine($"{line.id}\t{line.name}");
             }
+            outputTFile.Close();
         }
     }
 }

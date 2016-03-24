@@ -28,7 +28,7 @@ namespace TeraDataExtractor
             //new SkillExtractor("JP");
             //new SkillExtractor("KR");
 
-            new DotExtractor("RU");
+            //new DotExtractor("RU");
             //new DotExtractor("EU-EN");
             //new DotExtractor("EU-FR");
             //new DotExtractor("EU-GER");
@@ -37,14 +37,14 @@ namespace TeraDataExtractor
             //new DotExtractor("JP");
             //new DotExtractor("KR");
 
-            //new CharmExtractor("RU");
-            //new CharmExtractor("EU-EN");
-            //new CharmExtractor("EU-FR");
-            //new CharmExtractor("EU-GER");
-            //new CharmExtractor("NA");
-            //new CharmExtractor("TW");
-            //new CharmExtractor("JP");
-            //new CharmExtractor("KR");
+            new CharmExtractor("RU");
+            new CharmExtractor("EU-EN");
+            new CharmExtractor("EU-FR");
+            new CharmExtractor("EU-GER");
+            new CharmExtractor("NA");
+            new CharmExtractor("TW");
+            new CharmExtractor("JP");
+            new CharmExtractor("KR");
 
         }
     }
