@@ -67,30 +67,49 @@ namespace TeraDataExtractor
                 Names = Names.Union(Namedata, (x, y) => x.abnormalid == y.abnormalid, x => x.abnormalid.GetHashCode()).ToList();
             }
 
-            var xml1 = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
-            var templates = (from races in xml1.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = SkillExtractor.ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
-            //assume skills for different races and genders are the same per class 
-            templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
-            var ChainSkills = "".Select(t => new { PClass = string.Empty, skillid = string.Empty, p_skill = new ParsedSkill(string.Empty, string.Empty, string.Empty),abid=string.Empty }).ToList();
+            var SkillToName = "".Select(t => new { skillid = string.Empty, nameid = string.Empty }).ToList();
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/ItemData/"))
+            {
+                var xml = XDocument.Load(file);
+                var itemdata = (from item in xml.Root.Elements("Item") let comb = (item.Attribute("category") == null) ? "no" : item.Attribute("category").Value let skillid = (item.Attribute("linkSkillId") == null) ? "0" : item.Attribute("linkSkillId").Value let nameid = item.Attribute("id").Value where ((comb == "combat") || (comb == "brooch") || (comb == "charm") || (comb == "magical")) && skillid != "0" && skillid != "" && nameid != "" select new { skillid, nameid });
+                // filter only combat items, we don't need box openings etc.
+                SkillToName.AddRange(itemdata);
+            }
+            var ItemNames = "".Select(t => new { nameid = string.Empty, name = string.Empty }).ToList();
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Item/"))
+            {
+                var xml = XDocument.Load(file);
+                var namedata = (from item in xml.Root.Elements("String") let nameid = item.Attribute("id").Value let name = item.Attribute("string").Value where nameid != "" && name != "" && name != "[TBU]" && name != "TBU_new_in_V24" select new { nameid, name }).ToList();
+                ItemNames.AddRange(namedata);
+            }
+            var Items = (from item in SkillToName join nam in ItemNames on item.nameid equals nam.nameid orderby item.skillid where nam.name != ""
+                         select new { item.skillid, item.nameid, nam.name }).ToList();
+
+            var ItemSkills = "".Select(t => new { skillid = string.Empty, abid=string.Empty }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
             {
                 var xml = XDocument.Load(file);
-                var chaindata = (from temp in templates
-                                 join skills in xml.Root.Elements("Skill") on temp.templateId equals skills.Attribute("templateId").Value into Pskills
-                                 from Pskill in Pskills
-                                 let PClass = temp.PClass
-                                 let skillid = Pskill.Attribute("id").Value
-                                 let p_skill = new ParsedSkill(Pskill.Attribute("name").Value, skillid, (Pskill.Attribute("connectNextSkill") == null) ? Pskill.Attribute("type").Value : Pskill.Attribute("type").Value + "_combo")
-                                 from abns in Pskill.Descendants().Where(x=> x.Name=="AbnormalityOnPvp"||x.Name == "AbnormalityOnCommon")
+                var itemdata = (from skills in xml.Root.Elements("Skill")
+                                 let template = skills.Attribute("templateId").Value 
+                                 let skillid = skills.Attribute("id").Value
+                                 from abns in skills.Descendants().Where(x=> x.Name=="AbnormalityOnPvp"||x.Name == "AbnormalityOnCommon")
                                  let abid = abns.Attribute("id")==null? "": abns.Attribute("id").Value
-                                 where PClass != "" && skillid != "" && abid != ""
-                                 select new { PClass, skillid, p_skill,abid });
-                ChainSkills = ChainSkills.Union(chaindata, (x, y) => (x.skillid == y.skillid) && (x.PClass == y.PClass)&&(x.abid==y.abid), x => (x.PClass + x.skillid + x.abid).GetHashCode()).ToList();
+                                 where template == "9999" && skillid != "" && abid != ""
+                                 select new { skillid, abid });
+                ItemSkills = ItemSkills.Union(itemdata).ToList();
             }
+            var ItemAbnormals = (from skills in ItemSkills
+                                  join names in Items on skills.skillid equals names.skillid
+                                  orderby int.Parse(names.nameid)
+                                  select new { abid = skills.abid, nameid = names.nameid, names.name }).ToList();
 
-            xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
+            var xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
             var Glyphs = (from item in xml1.Root.Elements("String")
                          let passiveid = item.Attribute("id").Value
                          let name = item.Attribute("name").Value
@@ -116,14 +135,14 @@ namespace TeraDataExtractor
 
             Dotlist = (from dot in Dots
                        join nam in Names on dot.abnormalid equals nam.abnormalid
-                       join skills in ChainSkills on dot.abnormalid equals skills.abid into pskills
+                       join skills in ItemAbnormals on dot.abnormalid equals skills.abid into iskills
                        join glyph in Passives on dot.abnormalid equals glyph.abnormalid into gskills
-                       from pskill in pskills.DefaultIfEmpty() 
+                       from iskill in iskills.DefaultIfEmpty() 
                        from gskill in gskills.DefaultIfEmpty()
 
-                       where (nam.name != "" || pskill != null || gskill!=null)
+                       where (nam.name != "" || iskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
-                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, pskill==null?"":pskill.skillid, pskill == null ? "" : pskill.PClass)).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name)).ToList();
         }
 
         private bool isGlyph(string name)
