@@ -18,11 +18,13 @@ namespace TeraDataExtractor
 
     public enum types
     {
+        MaxHP = 1,
         Power = 3,
         Endurance = 4,
         MovSpd = 5,
         Crit = 6,
         CritResist = 7,
+        ImpactEffective = 8, 
         Ballance = 9,
         WeakResist = 14,
         DotResist = 15,
@@ -34,9 +36,10 @@ namespace TeraDataExtractor
         Attack = 22, //total damage modificator
         XPBoost = 23,
         ASpd = 24,
-        //25,210 = disable evasion and moving skills, not sure who is who
+        MovSpdInCombat = 25,
         CraftTime=26,
         OutOfCombatMovSpd = 27,
+        HPDrain=28, //drain hp on attack
         //28 = Something comming with MovSpd debuff skills, fxp 32% MovSpd debuff from Lockdown Blow IV, give also 12% of this kind
         //29 = something strange when using Lethal Strike
         Stamina = 30,
@@ -44,14 +47,19 @@ namespace TeraDataExtractor
         HPChange = 51,
         MPChange = 52,
         RageChange = 53,
-        //108,168 something came along with noctineum
+        KnockDownChance = 103,
         DefPotion = 104, //or glyph: - incoming damage %
+        IncreasedHeal = 105,
+        PVPDef = 108,
         AtkPotion = 162, //or glyph: + outgoing damage %
+        CritChance = 167,
+        PVPAtk = 168,
         Noctenium = 203, //different values for different kinds of Noctenium, not sure what for =)
         StaminaDecay = 207,
         CDR = 208,
         Block = 210, //frontal block ? Not sure, the ability to use block, or blocking stance
-        IncreasedHeal = 105,
+        HPLoss = 221, //loss hp at the and of debuff
+        CastSpeed = 236,
         Range = 259, //increase melee range? method 0 value 0.1= +10%
         //264 = redirect abnormality, value= new abnormality, bugged due to wrong float format in xml.
         Rage = 280, //tick - RageChange, notick (one change) - Rage 

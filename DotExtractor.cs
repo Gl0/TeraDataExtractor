@@ -15,6 +15,7 @@ namespace TeraDataExtractor
         private string OutFolder = Path.Combine(Program.OutputPath, "hotdot");
         private List<HotDot> Dotlist = new List<HotDot>();
         private string[] _glyph = new string[]{ "Glyph", "Символ", "の紋章", "문장", "紋章" };
+        private struct formatter { public string abnormalid; public string index; public string tick; public string change; public string time; };
 
         public DotExtractor(string region)
         {
@@ -33,8 +34,9 @@ namespace TeraDataExtractor
         private void RawExtract()
         {
 
-            var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty }).ToList();
-            var interesting = new string[] { "3", "4", "6", "19", "22", "24","30", "104" , "162" , "203" , "207", "210", "208" , "283" };
+            var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty, num = 0 }).ToList();
+            var interesting = new string[] {"1", "3", "4", "5", "6", "7","8", "9", "18", "19", "20", "22", "24", "25", "28", "30", "103", "104", "105", "108", "162", "167", "168", "203", "207", "210", "208", "221", "236", "283" };
+            var notinteresting = new string[] {"1", "5", "7", "8", "9", "18", "20", "28", "103", "105", "108", "168", "221" };
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))
@@ -43,16 +45,26 @@ namespace TeraDataExtractor
                 var Dotdata = (from item in xml.Root.Elements("Abnormal")
                                let abnormalid = item.Attribute("id").Value
                                let isShow = item.Attribute("isShow") == null ? "False" : item.Attribute("isShow").Value
-                               let time = item.Attribute("infinity").Value=="True"?"0":item.Attribute("time").Value
+                               let time = item.Attribute("infinity").Value == "True" ? "0" : item.Attribute("time").Value
                                from eff in item.Elements("AbnormalityEffect")
                                let type = eff.Attribute("type") == null ? "0" : eff.Attribute("type").Value
                                let method = eff.Attribute("method") == null ? "" : eff.Attribute("method").Value
+                               let num = item.Elements("AbnormalityEffect").TakeWhile(x => x != eff).Count() + 1
                                let amount = eff.Attribute("value") == null ? "" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51"||type=="52") && tick != "0")|| (interesting.Contains(type)&& isShow !="False")) && amount != "" && method != ""
-                               select new { abnormalid, type, amount, method, time, tick }).ToList();
+                               where (((type == "51" || type == "52") && tick != "0") || (interesting.Contains(type) && isShow != "False")) && amount != "" && method != ""
+                               select new { abnormalid, type, amount, method, time, tick, num }).ToList();
                 Dots = Dots.Union(Dotdata).ToList();
             }
+            var subs = (from dot in Dots
+                        let index = "value" + (dot.num == 1 ? "" : dot.num.ToString())
+                        let change = (dot.method == "3" || dot.method == "4" || dot.method == "0")
+                            ? (dot.type == "51" || dot.type == "52")
+                                ? Math.Abs(Math.Round(double.Parse(dot.amount) * 100)).ToString() + "%"
+                                : Math.Abs(Math.Round((1 - double.Parse(dot.amount)) * 100)).ToString() + "%"
+                            : dot.amount
+                        select new formatter { abnormalid = dot.abnormalid, index = index, tick = dot.tick, change= change, time=dot.time }).ToDictionary(x => Tuple.Create(x.abnormalid, x.index));
+
             var Names = "".Select(t => new { abnormalid = string.Empty, name = string.Empty, tooltip=string.Empty }).ToList();
             foreach (
                 var file in
@@ -62,11 +74,13 @@ namespace TeraDataExtractor
                 var Namedata = (from item in xml.Root.Elements("String")
                                 let abnormalid = item.Attribute("id").Value
                                 let name = item.Attribute("name") == null ? "" : item.Attribute("name").Value
-                                let tooltip = item.Attribute("tooltip") == null ? "" : item.Attribute("tooltip").Value
+                                let tooltip = item.Attribute("tooltip") == null ? "" : SubValues(item.Attribute("tooltip").Value
+                                    .Replace("$H_W_GOOD","").Replace("$COLOR_END","").Replace("$H_W_BAD","").Replace("$H_W_Bad","").Replace("$BR"," ").Replace("\n"," "),abnormalid,subs)
                                 where abnormalid != ""
                                 select new { abnormalid, name, tooltip }).ToList();
                 Names = Names.Union(Namedata, (x, y) => x.abnormalid == y.abnormalid, x => x.abnormalid.GetHashCode()).ToList();
             }
+
             var Icons = "".Select(t => new { abnormalid = string.Empty, iconName = string.Empty }).ToList();
             foreach (
                 var file in
@@ -147,7 +161,7 @@ namespace TeraDataExtractor
                 Passives = Passives.Union(PassiveData, (x, y) => (x.abnormalid == y.abnormalid), x => x.abnormalid.GetHashCode()).ToList();
             }
 
-            Dotlist = (from dot in Dots
+            Dotlist = (from dot in Dots.Where(x=> !notinteresting.Contains(x.type))
                        join nam in Names on dot.abnormalid equals nam.abnormalid
                        join icon in Icons on dot.abnormalid equals icon.abnormalid
                        join skills in ItemAbnormals on dot.abnormalid equals skills.abid into iskills
@@ -160,6 +174,21 @@ namespace TeraDataExtractor
                        select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,nam.tooltip,icon.iconName)).ToList();
         }
 
+        private string SubValues(string text, string abid, Dictionary<Tuple<string,string>,formatter> subs)
+        {
+            string result = text;
+            formatter changer;
+            for (int i = 2; i <= 5; i++)
+            {
+                if (subs.TryGetValue(Tuple.Create(abid, "value" + i), out changer))
+                    result = result.Replace("$value" + i, changer.change).Replace("$tickInterval" + i, changer.tick);
+                else
+                    result = result.Replace("$value" + i, "unk"+i).Replace("$tickInterval" + i, "unk"+i);
+            }
+            if (subs.TryGetValue(Tuple.Create(abid, "value"), out changer))
+                result = result.Replace("$value", changer.change).Replace("$tickInterval", changer.tick + "s").Replace("$time", changer.time + "s");
+            return result;
+        }
         private bool isGlyph(string name)
         {
             foreach (string gl in _glyph)
