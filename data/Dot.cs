@@ -70,8 +70,10 @@ namespace TeraDataExtractor
         public double Amount { get; set; }
         public string Itemid { get; set; }
         public string ItemName { get; set; }
+        public string Tooltip { get; set; }
+        public string IconName { get; set; }
 
-        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name,string itemid, string itemName)
+        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name,string itemid, string itemName,string tooltip,string iconName)
         {
             AbnormalId = abnormalid;
             _type = (types) Enum.Parse(typeof(types),type);
@@ -84,10 +86,12 @@ namespace TeraDataExtractor
             Name = name;
             Itemid = itemid;
             ItemName = itemName;
+            Tooltip = tooltip;
+            IconName = iconName;
         }
         public override string ToString()
         {
-            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("F", CultureInfo.InvariantCulture)+"\t" + Name + "\t" + Itemid +"\t"+ItemName;
+            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("F", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName;
         }
     }
 }

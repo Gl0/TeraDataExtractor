@@ -53,7 +53,7 @@ namespace TeraDataExtractor
                                select new { abnormalid, type, amount, method, time, tick }).ToList();
                 Dots = Dots.Union(Dotdata).ToList();
             }
-            var Names = "".Select(t => new { abnormalid = string.Empty, name = string.Empty }).ToList();
+            var Names = "".Select(t => new { abnormalid = string.Empty, name = string.Empty, tooltip=string.Empty }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Abnormality/"))
@@ -61,10 +61,24 @@ namespace TeraDataExtractor
                 var xml = XDocument.Load(file);
                 var Namedata = (from item in xml.Root.Elements("String")
                                 let abnormalid = item.Attribute("id").Value
-                                let name = item.Attribute("name")==null?"": item.Attribute("name").Value
+                                let name = item.Attribute("name") == null ? "" : item.Attribute("name").Value
+                                let tooltip = item.Attribute("tooltip") == null ? "" : item.Attribute("tooltip").Value
                                 where abnormalid != ""
-                                select new { abnormalid, name }).ToList();
+                                select new { abnormalid, name, tooltip }).ToList();
                 Names = Names.Union(Namedata, (x, y) => x.abnormalid == y.abnormalid, x => x.abnormalid.GetHashCode()).ToList();
+            }
+            var Icons = "".Select(t => new { abnormalid = string.Empty, iconName = string.Empty }).ToList();
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/AbnormalityIconData/"))
+            {
+                var xml = XDocument.Load(file);
+                var IconData = (from item in xml.Root.Elements("Icon")
+                                let abnormalid = item.Attribute("abnormalityId").Value
+                                let iconName = item.Attribute("iconName") == null ? "" : item.Attribute("iconName").Value
+                                where abnormalid != ""
+                                select new { abnormalid, iconName }).ToList();
+                Icons = Icons.Union(IconData, (x, y) => x.abnormalid == y.abnormalid, x => x.abnormalid.GetHashCode()).ToList();
             }
 
             var SkillToName = "".Select(t => new { skillid = string.Empty, nameid = string.Empty }).ToList();
@@ -135,6 +149,7 @@ namespace TeraDataExtractor
 
             Dotlist = (from dot in Dots
                        join nam in Names on dot.abnormalid equals nam.abnormalid
+                       join icon in Icons on dot.abnormalid equals icon.abnormalid
                        join skills in ItemAbnormals on dot.abnormalid equals skills.abid into iskills
                        join glyph in Passives on dot.abnormalid equals glyph.abnormalid into gskills
                        from iskill in iskills.DefaultIfEmpty() 
@@ -142,7 +157,7 @@ namespace TeraDataExtractor
 
                        where (nam.name != "" || iskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
-                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name)).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,nam.tooltip,icon.iconName)).ToList();
         }
 
         private bool isGlyph(string name)
