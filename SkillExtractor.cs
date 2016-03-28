@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Xml.Linq;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace TeraDataExtractor
 {
@@ -16,6 +17,7 @@ namespace TeraDataExtractor
         private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "skills");
         private List<Skill> skilllist;
+        private static Regex regex = new Regex("[a-zA-Z0-9а-яА-Я\\%\\#\\'\\[\\]\\(\\)_\\:\\;\\.\\,\\- ]*");
 
         public SkillExtractor(string region)
         {
@@ -193,6 +195,8 @@ namespace TeraDataExtractor
                         return 1;
                     else
                     {
+                        if (regex.Match(x).Value != x) { return 1; } ///Non RU & EN characters
+                        if (regex.Match(y).Value != y) { return -1; } ///Non RU & EN characters
                         if (idx.StartsWith("60246")) { string t = x; x = y; y = t; } ///Greater charms
                         int retval = x.Length.CompareTo(y.Length);
 
