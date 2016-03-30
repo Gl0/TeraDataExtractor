@@ -4,15 +4,16 @@ namespace TeraDataExtractor
 {
     public class Skill : IComparable<Skill>
     {
-        public Skill(string id, string race, string gender,string pclass,string name)
+        public Skill(string id, string race, string gender,string pclass,string name,string iconName="")
         {
             Id = id;
             Race = race;
             Gender = gender;
             PClass = pclass;
             Name = name;
+            IconName = PClass == "Common"&&Race=="Common" ? "" : iconName;
         }
-        public Skill(string id, string race, string gender, string pclass, string name, string chained, string detail)
+        public Skill(string id, string race, string gender, string pclass, string name, string chained, string detail, string iconName)
         {
             Id = id;
             Race = race;
@@ -21,6 +22,7 @@ namespace TeraDataExtractor
             Name = name;
             Chained = chained;
             Detail = detail;
+            IconName = PClass == "Common" && Race == "Common" ? "" : iconName;
         }
 
         public string Race { get; }
@@ -30,6 +32,7 @@ namespace TeraDataExtractor
         public string Name { get; set; }
         public string Chained { get; set; }
         public string Detail { get; set; }
+        public string IconName { get; set; }
         public Skill Parent { get; set; } //1st way - counting hits 
         public string hitnum(Skill skill)
         {//1st way - counting hits 
@@ -55,7 +58,7 @@ namespace TeraDataExtractor
             return !(x == y);
         }
         public string toCSV() { return Id + ";" + Race + ";" + Gender + ";" + PClass + ";" + Name+ ";"+ Chained+";"+Detail; }
-        public string toTSV() { return Id + "\t" + Race + "\t" + Gender + "\t" + PClass + "\t" + Name +"\t"+Chained+"\t"+Detail ; }
+        public string toTSV() { return Id + "\t" + Race + "\t" + Gender + "\t" + PClass + "\t" + Name +"\t"+Chained+"\t"+Detail+"\t"+IconName; }
         public string toSSV() { return Id + " " + Race + " " + Gender + " " + PClass + " " + Name; }
 
         public bool Equals(Skill y)

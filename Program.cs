@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace TeraDataExtractor
@@ -7,9 +8,12 @@ namespace TeraDataExtractor
     {
         public static string SourcePath = "j:/c/Extract/";
         public static string OutputPath = "data";
+        public static string IconFolder = Path.Combine(OutputPath, "icons");
+        public static List<string> Copied = new List<string>();
         private static void Main(string[] args)
         {
             Directory.CreateDirectory(OutputPath);//create output directory if not exist
+            Directory.CreateDirectory(IconFolder);//create output directory if not exist
             //new MonsterExtractor("RU");
             //new MonsterExtractor("EU-EN");
             //new MonsterExtractor("EU-FR");
@@ -20,32 +24,44 @@ namespace TeraDataExtractor
             //new MonsterExtractor("KR");
 
             new SkillExtractor("RU");
-            //new SkillExtractor("EU-EN");
-            //new SkillExtractor("EU-FR");
-            //new SkillExtractor("EU-GER");
-            //new SkillExtractor("NA");
-            //new SkillExtractor("TW");
-            //new SkillExtractor("JP");
-            //new SkillExtractor("KR");
+            new SkillExtractor("EU-EN");
+            new SkillExtractor("EU-FR");
+            new SkillExtractor("EU-GER");
+            new SkillExtractor("NA");
+            new SkillExtractor("TW");
+            new SkillExtractor("JP");
+            new SkillExtractor("KR");
 
-            //new DotExtractor("RU");
-            //new DotExtractor("EU-EN");
-            //new DotExtractor("EU-FR");
-            //new DotExtractor("EU-GER");
-            //new DotExtractor("NA");
-            //new DotExtractor("TW");
-            //new DotExtractor("JP");
-            //new DotExtractor("KR");
+            new DotExtractor("RU");
+            new DotExtractor("EU-EN");
+            new DotExtractor("EU-FR");
+            new DotExtractor("EU-GER");
+            new DotExtractor("NA");
+            new DotExtractor("TW");
+            new DotExtractor("JP");
+            new DotExtractor("KR");
 
-            //new CharmExtractor("RU");
-            //new CharmExtractor("EU-EN");
-            //new CharmExtractor("EU-FR");
-            //new CharmExtractor("EU-GER");
-            //new CharmExtractor("NA");
-            //new CharmExtractor("TW");
-            //new CharmExtractor("JP");
-            //new CharmExtractor("KR");
-
+            new CharmExtractor("RU");
+            new CharmExtractor("EU-EN");
+            new CharmExtractor("EU-FR");
+            new CharmExtractor("EU-GER");
+            new CharmExtractor("NA");
+            new CharmExtractor("TW");
+            new CharmExtractor("JP");
+            new CharmExtractor("KR");
+        }
+        public static void Copytexture(string name)
+        {
+            if (!string.IsNullOrEmpty(name)&&!Copied.Contains(name))
+            {
+                var filename = SourcePath + "Icons\\" + name.Replace(".", "\\Texture2D\\") + ".png";
+                if (File.Exists(filename))
+                {
+                    File.Copy(filename, Path.Combine(IconFolder, name + ".png"), true);
+                    Copied.Add(name);
+                }
+                else Console.WriteLine("Not found texture: " + name);
+            }
         }
     }
 }

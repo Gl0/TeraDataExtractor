@@ -169,6 +169,7 @@ namespace TeraDataExtractor
                     if (nameOverride.ContainsKey(all.idzone) && nameOverride[all.idzone].ContainsKey(all.identity))
                         name = nameOverride[all.idzone][all.identity];
 
+                if (!_zones[all.idzone].Monsters.ContainsKey(all.identity))
                     _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss));
 
                 //    outputFile.WriteLine("{0} {1} {2} {3} {4}", all.idzone, all.identity, isboss, all.maxHP, name);

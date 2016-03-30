@@ -29,18 +29,14 @@ namespace TeraDataExtractor
             item_Skills();
             loadoverride();
             skilllist.Sort();
-//            var outputFile = new StreamWriter("DATA/skills-" + _region + ".txt");
             var outputTFile = new StreamWriter(Path.Combine(OutFolder, $"skills-{_region}.tsv"));
             foreach (Skill line in skilllist)
             {
                 outputTFile.WriteLine(line.toTSV());
-//                outputFile.WriteLine(line.toSSV());
+                Program.Copytexture(line.IconName);
             }
-//            outputFile.Flush();
-//            outputFile.Close();
             outputTFile.Flush();
             outputTFile.Close();
-            //            SkillsFormat();
         }
         private void loadoverride()
         {
@@ -60,8 +56,8 @@ namespace TeraDataExtractor
                 var skillName = values[4];
                 var chained = values[5];
                 var skillDetail = values[6];
-
-                var skill = new Skill(id, race, gender, PClass, skillName, chained, skillDetail);
+                var skillIcon = values[7];
+                var skill = new Skill(id, race, gender, PClass, skillName, chained, skillDetail, skillIcon);
                 skilllist1.Add(skill);
             }
             skilllist=skilllist1.Union(skilllist).ToList();
@@ -117,13 +113,13 @@ namespace TeraDataExtractor
                 ChainSkills = ChainSkills.Union(chaindata, (x, y) => (x.skillid == y.skillid)&&(x.PClass==y.PClass), x => (x.PClass+x.skillid).GetHashCode()).ToList();
             }
             var IntToPub = (from cs in ChainSkills join sl in skilllist on new { cs.PClass, cs.skillid } equals new { sl.PClass, skillid = sl.Id } into itps
-                            from itp in itps select new { cs.p_skill.BaseName, itp.Name }).ToList();
+                            from itp in itps select new { cs.p_skill.BaseName, itp.Name,itp.IconName }).ToList();
             IntToPub.Distinct((x,y)=>x.BaseName==y.BaseName,x=>x.BaseName.GetHashCode());
             var chainedlist = (from cs in ChainSkills
                            join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
                            join sl in skilllist on new { cs.skillid, cs.PClass } equals new { skillid = sl.Id, sl.PClass } into uskills
                            from uskill in uskills.DefaultIfEmpty(new Skill("","","","",""))
-                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name, cs.p_skill.Lvl) : uskill.Name,cs.p_skill.Chained,cs.p_skill.Detail)).ToList();
+                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name, cs.p_skill.Lvl) : uskill.Name,cs.p_skill.Chained,cs.p_skill.Detail,itp.IconName)).ToList();
             skilllist = chainedlist.Union(skilllist).ToList();
         }
         private string cut_name(string internalname, out List<string> modifiers)
@@ -178,6 +174,25 @@ namespace TeraDataExtractor
                                  select new Skill( id, race, gender, PClass, name )).ToList();
                 skilllist = skilllist.Union(skilldata).ToList();
             }
+            var icondata = new List<Skill>();
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/SkillIconData/"))
+            {
+                var xml = XDocument.Load(file);
+                var skilldata = (from item in xml.Root.Elements("Icon")
+                                 let id = item.Attribute("skillId").Value
+                                 let race = item.Attribute("race").Value
+                                 let gender = item.Attribute("gender").Value
+                                 let PClass = (item.Attribute("class") == null) ? "" : ClassConv(item.Attribute("class").Value)
+                                 let iconName = (item.Attribute("iconName") == null) ? "" : item.Attribute("iconName").Value
+                                 where id != "" && race != "" && gender != "" && PClass != ""
+                                 select new Skill(id, race, gender, PClass, "",iconName)).ToList();
+                icondata = icondata.Union(skilldata).ToList();
+            }
+            skilllist = (from sl in skilllist join ic in icondata on new { sl.Race, sl.Gender, sl.PClass, sl.Id } equals new { ic.Race, ic.Gender, ic.PClass, ic.Id } into skills
+                         from skill in skills.DefaultIfEmpty()
+                         select new Skill( sl.Id, sl.Race, sl.Gender, sl.PClass, sl.Name, skill?.IconName??"")).ToList();
         }
 
         private static int CompareItems(string idx, string idy, string x, string y)

@@ -26,6 +26,7 @@ namespace TeraDataExtractor
             foreach (HotDot line in Dotlist)
             {
                 outputFile.WriteLine(line.ToString());
+                Program.Copytexture(line.IconName);
             }
             outputFile.Flush();
             outputFile.Close();
@@ -136,7 +137,7 @@ namespace TeraDataExtractor
                                   join names in Items on skills.skillid equals names.skillid
                                   orderby int.Parse(names.nameid)
                                   select new { abid = skills.abid, nameid = names.nameid, names.name }).ToList();
-
+            ItemAbnormals.Distinct((x,y)=>x.abid==y.abid);
             var xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
             var Glyphs = (from item in xml1.Root.Elements("String")
                          let passiveid = item.Attribute("id").Value
