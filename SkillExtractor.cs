@@ -19,6 +19,13 @@ namespace TeraDataExtractor
         private List<Skill> skilllist;
         private static Regex regex = new Regex("[a-zA-Z0-9а-яА-Я\\%\\#\\'\\[\\]\\(\\)_\\:\\;\\.\\,\\- ]*");
 
+        public SkillExtractor(string region, out List<Skill> list)
+        {
+            _region = region;
+            skilllist = new List<Skill>();
+            RawExtract();
+            list = skilllist;
+        }
         public SkillExtractor(string region)
         {
             _region = region;

@@ -15,14 +15,15 @@ namespace TeraDataExtractor
         {
             Directory.CreateDirectory(OutputPath);//create output directory if not exist
             Directory.CreateDirectory(IconFolder);//create output directory if not exist
-            //new MonsterExtractor("RU");
-            //new MonsterExtractor("EU-EN");
-            //new MonsterExtractor("EU-FR");
-            //new MonsterExtractor("EU-GER");
-            //new MonsterExtractor("NA");
-            //new MonsterExtractor("TW");
-            //new MonsterExtractor("JP");
-            //new MonsterExtractor("KR");
+
+            new MonsterExtractor("RU");
+            new MonsterExtractor("EU-EN");
+            new MonsterExtractor("EU-FR");
+            new MonsterExtractor("EU-GER");
+            new MonsterExtractor("NA");
+            new MonsterExtractor("TW");
+            new MonsterExtractor("JP");
+            new MonsterExtractor("KR");
 
             new SkillExtractor("RU");
             new SkillExtractor("EU-EN");
@@ -74,15 +75,20 @@ namespace TeraDataExtractor
                 File.Delete(IconFolder + ".zip");
 
             Package zip = Package.Open(IconFolder + ".zip", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            foreach (var name in Copied)
+            foreach (var file in Directory.EnumerateFiles(IconFolder))
             {
-                PackagePart part= zip.CreatePart(new Uri("/"+name + ".png",UriKind.Relative), "image/png",CompressionOption.Normal);
-                using (FileStream fileStream = new FileStream(
-                        Path.Combine(IconFolder, name + ".png"), FileMode.Open, FileAccess.Read))
+                PackagePart part= zip.CreatePart(new Uri("/"+Path.GetFileName(file),UriKind.Relative), "image/png",CompressionOption.Maximum);
+                using (FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
                 {
                     fileStream.CopyTo(part.GetStream());
                 }
             }
+            PackagePart part1 = zip.CreatePart(new Uri("/enraged.png", UriKind.Relative), "image/png", CompressionOption.Maximum);
+            using (FileStream fileStream = new FileStream(SourcePath + "Icons\\enraged.png", FileMode.Open, FileAccess.Read))
+            {
+                fileStream.CopyTo(part1.GetStream());
+            }
+
             zip.Close();
         }
     }

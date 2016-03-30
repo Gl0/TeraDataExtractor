@@ -138,14 +138,21 @@ namespace TeraDataExtractor
                                   orderby int.Parse(names.nameid)
                                   select new { abid = skills.abid, nameid = names.nameid, names.name }).ToList();
             ItemAbnormals.Distinct((x,y)=>x.abid==y.abid);
+
+            List<Skill> skilllist;
+            new SkillExtractor(_region, out skilllist);
+
             var xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
             var Glyphs = (from item in xml1.Root.Elements("String")
-                         let passiveid = item.Attribute("id").Value
-                         let name = item.Attribute("name").Value
-                         let skillname = item.Attribute("skillName").Value
-                          select new { passiveid, name, skillname});
-            //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
-            var Passives = "".Select(t => new { abnormalid = string.Empty, name = string.Empty }).ToList();
+                          let passiveid = item.Attribute("id").Value
+                          let name = item.Attribute("name").Value
+                          let skillname = item.Attribute("skillName").Value
+                          let iconName = skilllist.Find(x => x.Name.Contains(skillname))?.IconName ?? ""
+                          select new { passiveid, name, skillname, iconName});
+
+
+                        //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
+                        var Passives = "".Select(t => new { abnormalid = string.Empty, name = string.Empty,iconName = string.Empty }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Passivity/"))
@@ -158,7 +165,7 @@ namespace TeraDataExtractor
                                    join glyph in Glyphs on passiveid equals glyph.passiveid
                                    where abnormalid != "" && (type =="209" || type == "210" || type=="156" || type == "157" || type == "80" || type == "232" || type == "106")
                                    && abnormalid != "500100"
-                                   select new { abnormalid, name=(isGlyph(glyph.name))?$"{glyph.skillname}({glyph.name})": glyph.name }).ToList();
+                                   select new { abnormalid, name=(isGlyph(glyph.name))?$"{glyph.skillname}({glyph.name})": glyph.name, glyph.iconName }).ToList();
                 Passives = Passives.Union(PassiveData, (x, y) => (x.abnormalid == y.abnormalid), x => x.abnormalid.GetHashCode()).ToList();
             }
 
@@ -172,7 +179,7 @@ namespace TeraDataExtractor
 
                        where (nam.name != "" || iskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
-                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,nam.tooltip,icon.iconName)).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,nam.tooltip,gskill==null?icon.iconName:gskill.iconName)).ToList();
         }
 
         private string SubValues(string text, string abid, Dictionary<Tuple<string,string>,formatter> subs)
