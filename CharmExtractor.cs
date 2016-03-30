@@ -28,7 +28,7 @@ namespace TeraDataExtractor
             var outputTFile = new StreamWriter(Path.Combine(OutFolder, $"charms-{_region}.tsv"));
             foreach (var line in charmList)
             {
-                outputTFile.WriteLine($"{line.id}\t{line.name}\t{line.iconName}");
+                outputTFile.WriteLine($"{line.id}\t{line.name}\t{line.iconName.ToLowerInvariant()}");
                 Program.Copytexture(line.iconName);
             }
             outputTFile.Close();

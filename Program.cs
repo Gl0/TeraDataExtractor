@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
 
 namespace TeraDataExtractor
 {
@@ -49,9 +50,12 @@ namespace TeraDataExtractor
             new CharmExtractor("TW");
             new CharmExtractor("JP");
             new CharmExtractor("KR");
+
+            PackIcons();
         }
         public static void Copytexture(string name)
         {
+            name = name.ToLowerInvariant();
             if (!string.IsNullOrEmpty(name)&&!Copied.Contains(name))
             {
                 var filename = SourcePath + "Icons\\" + name.Replace(".", "\\Texture2D\\") + ".png";
@@ -62,6 +66,24 @@ namespace TeraDataExtractor
                 }
                 else Console.WriteLine("Not found texture: " + name);
             }
+        }
+
+        public static void PackIcons()
+        {
+            if (File.Exists(IconFolder + ".zip"))
+                File.Delete(IconFolder + ".zip");
+
+            Package zip = Package.Open(IconFolder + ".zip", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            foreach (var name in Copied)
+            {
+                PackagePart part= zip.CreatePart(new Uri("/"+name + ".png",UriKind.Relative), "image/png",CompressionOption.Normal);
+                using (FileStream fileStream = new FileStream(
+                        Path.Combine(IconFolder, name + ".png"), FileMode.Open, FileAccess.Read))
+                {
+                    fileStream.CopyTo(part.GetStream());
+                }
+            }
+            zip.Close();
         }
     }
 }
