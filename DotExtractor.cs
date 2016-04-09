@@ -26,7 +26,7 @@ namespace TeraDataExtractor
             foreach (HotDot line in Dotlist)
             {
                 outputFile.WriteLine(line.ToString());
-                Program.Copytexture(line.IconName);
+                Program.Copytexture(line.IconName,line.AbnormalId);
             }
             outputFile.Flush();
             outputFile.Close();
@@ -147,7 +147,7 @@ namespace TeraDataExtractor
                           let passiveid = item.Attribute("id").Value
                           let name = item.Attribute("name").Value
                           let skillname = item.Attribute("skillName").Value
-                          let iconName = skilllist.Find(x => x.Name.Contains(skillname))?.IconName ?? ""
+                          let iconName = skilllist.Find(x => x.Name.Contains(skillname.Replace("Всплеск ярости", "Сила гиганта")))?.IconName ?? ""
                           select new { passiveid, name, skillname, iconName});
 
 
