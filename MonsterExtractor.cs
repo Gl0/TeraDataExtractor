@@ -154,27 +154,33 @@ namespace TeraDataExtractor
                     }
                 }
             }
-            //using (StreamWriter outputFile = new StreamWriter("data/npc.txt"))
-            //{
-                foreach (var all in alldata)
+            foreach (var all in alldata)
+            {
+                if (!_zones.ContainsKey(all.idzone))
                 {
-                    if (!_zones.ContainsKey(all.idzone))
-                    {
-                        _zones.Add(all.idzone, new Zone(all.idzone, all.regname));
-                    }
-                    bool isboss = all.boss;
-                    if (bossOverride.ContainsKey(all.idzone) && bossOverride[all.idzone].ContainsKey(all.identity))
-                        isboss = bossOverride[all.idzone][all.identity];
-                    string name = all.name;
-                    if (nameOverride.ContainsKey(all.idzone) && nameOverride[all.idzone].ContainsKey(all.identity))
-                        name = nameOverride[all.idzone][all.identity];
+                    _zones.Add(all.idzone, new Zone(all.idzone, all.regname));
+                }
+                bool isboss = all.boss;
+                if (bossOverride.ContainsKey(all.idzone) && bossOverride[all.idzone].ContainsKey(all.identity))
+                    isboss = bossOverride[all.idzone][all.identity];
+                string name = all.name;
+                if (nameOverride.ContainsKey(all.idzone) && nameOverride[all.idzone].ContainsKey(all.identity))
+                    name = nameOverride[all.idzone][all.identity];
+                if (name.Contains("{@Creature:"))
+                {
+                    int zone = int.Parse(name.Substring(name.IndexOf("{@Creature:") + 11, name.IndexOf("#") - name.IndexOf("{@Creature:") - 11));
+                    int id = int.Parse(name.Substring(name.IndexOf("#") + 1, name.IndexOf("}") - name.IndexOf("#") - 1));
+                    var subst = alldata.First(x => (x.idzone == zone && x.identity == id)).name;
+                    name = name.Replace(name.Substring(name.IndexOf("{"), name.IndexOf("}") - name.IndexOf("{")+1), subst);
+                }
+                if (name.Contains("{@Rgn:"))
+                {
+                    name = name.Replace("{@Rgn:", "").Replace("}", "");
+                }
 
                 if (!_zones[all.idzone].Monsters.ContainsKey(all.identity))
                     _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss));
-
-                //    outputFile.WriteLine("{0} {1} {2} {3} {4}", all.idzone, all.identity, isboss, all.maxHP, name);
-                }
-            //}
+            }
         }
     }
 }
