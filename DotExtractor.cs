@@ -194,7 +194,7 @@ namespace TeraDataExtractor
                     result = result.Replace("$value" + i, "unk"+i).Replace("$tickInterval" + i, "unk"+i);
             }
             if (subs.TryGetValue(Tuple.Create(abid, "value"), out changer))
-                result = result.Replace("$value", changer.change).Replace("$tickInterval", changer.tick + "s").Replace("$time", changer.time + "s");
+                result = result.Replace("$value", changer.change).Replace("$tickInterval", changer.tick + "s").Replace("$time", long.Parse(changer.time)/1000 + "s");
             return result;
         }
         private bool isGlyph(string name)
