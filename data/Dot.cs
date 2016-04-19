@@ -63,12 +63,13 @@ namespace TeraDataExtractor
         Range = 259, //increase melee range? method 0 value 0.1= +10%
         //264 = redirect abnormality, value= new abnormality, bugged due to wrong float format in xml.
         Rage = 280, //tick - RageChange, notick (one change) - Rage 
-        SuperArmor = 283 
+        SuperArmor = 283,
+        Charm = 65535
     }
     class HotDot
     {
         public int AbnormalId { get; set; }
-        public types _type { get; set; } //seems usless
+        public types _type { get; set; }
         public double HPChange { get; set; }
         public double MPChange { get; set; }
         public methods Method { get; set; }

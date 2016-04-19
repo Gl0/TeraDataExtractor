@@ -22,6 +22,7 @@ namespace TeraDataExtractor
             _region = region;
             Directory.CreateDirectory(OutFolder);
             RawExtract();
+            AddCharms();
             var outputFile = new StreamWriter(Path.Combine(OutFolder, $"hotdot-{_region}.tsv"));
             foreach (HotDot line in Dotlist)
             {
@@ -32,6 +33,19 @@ namespace TeraDataExtractor
             outputFile.Close();
         }
 
+        private void AddCharms()
+        {
+            var xml = XDocument.Load(RootFolder + _region + "/StrSheet_Charm.xml");
+            var xml1 = XDocument.Load(RootFolder + _region + "/CharmIconData.xml");
+            var charmList = (from item in xml.Root.Elements("String")
+                             join icon in xml1.Root.Elements("Icon") on item.Attribute("id").Value equals icon.Attribute("charmId").Value
+                             let id = item.Attribute("id").Value
+                             let name = item.Attribute("string").Value
+                             let tooltip = item.Attribute("tooltip").Value
+                             let iconName = icon.Attribute("iconName").Value
+                             select new HotDot(int.Parse(id), "Charm", 0, "0", 0, 0, name, "", "",tooltip, iconName)).ToList();
+            Dotlist = Dotlist.Union(charmList).ToList();
+        }
         private void RawExtract()
         {
 

@@ -35,25 +35,26 @@ namespace TeraDataExtractor
             //new SkillExtractor("JP");
             //new SkillExtractor("KR");
 
-            //new DotExtractor("RU");
-            //new DotExtractor("EU-EN");
-            //new DotExtractor("EU-FR");
-            //new DotExtractor("EU-GER");
-            //new DotExtractor("NA");
-            //new DotExtractor("TW");
-            //new DotExtractor("JP");
-            //new DotExtractor("KR");
+            new DotExtractor("RU");
+            new DotExtractor("EU-EN");
+            new DotExtractor("EU-FR");
+            new DotExtractor("EU-GER");
+            new DotExtractor("NA");
+            new DotExtractor("TW");
+            new DotExtractor("JP");
+            new DotExtractor("KR");
 
-            new CharmExtractor("RU");
-            new CharmExtractor("EU-EN");
-            new CharmExtractor("EU-FR");
-            new CharmExtractor("EU-GER");
-            new CharmExtractor("NA");
-            new CharmExtractor("TW");
-            new CharmExtractor("JP");
-            new CharmExtractor("KR");
-
-            //PackIcons();
+            /* Not needed more, charms are in hotdot now.
+            //new CharmExtractor("RU");
+            //new CharmExtractor("EU-EN");
+            //new CharmExtractor("EU-FR");
+            //new CharmExtractor("EU-GER");
+            //new CharmExtractor("NA");
+            //new CharmExtractor("TW");
+            //new CharmExtractor("JP");
+            //new CharmExtractor("KR");
+            */
+            PackIcons();
         }
         public static void Copytexture(string name,int id=0)
         {
