@@ -35,23 +35,23 @@ namespace TeraDataExtractor
             //new SkillExtractor("JP");
             //new SkillExtractor("KR");
 
-            new DotExtractor("RU");
-            new DotExtractor("EU-EN");
-            new DotExtractor("EU-FR");
-            new DotExtractor("EU-GER");
-            new DotExtractor("NA");
-            new DotExtractor("TW");
-            new DotExtractor("JP");
-            new DotExtractor("KR");
+            //new DotExtractor("RU");
+            //new DotExtractor("EU-EN");
+            //new DotExtractor("EU-FR");
+            //new DotExtractor("EU-GER");
+            //new DotExtractor("NA");
+            //new DotExtractor("TW");
+            //new DotExtractor("JP");
+            //new DotExtractor("KR");
 
-            //new CharmExtractor("RU");
-            //new CharmExtractor("EU-EN");
-            //new CharmExtractor("EU-FR");
-            //new CharmExtractor("EU-GER");
-            //new CharmExtractor("NA");
-            //new CharmExtractor("TW");
-            //new CharmExtractor("JP");
-            //new CharmExtractor("KR");
+            new CharmExtractor("RU");
+            new CharmExtractor("EU-EN");
+            new CharmExtractor("EU-FR");
+            new CharmExtractor("EU-GER");
+            new CharmExtractor("NA");
+            new CharmExtractor("TW");
+            new CharmExtractor("JP");
+            new CharmExtractor("KR");
 
             //PackIcons();
         }
@@ -90,7 +90,13 @@ namespace TeraDataExtractor
             {
                 fileStream.CopyTo(part1.GetStream());
             }
+            part1 = zip.CreatePart(new Uri("/slaying.png", UriKind.Relative), "image/png", CompressionOption.Maximum);
+            using (FileStream fileStream = new FileStream(SourcePath + "Icons\\slaying.png", FileMode.Open, FileAccess.Read))
+            {
+                fileStream.CopyTo(part1.GetStream());
+            }
             zip.Close();
+            
             if (abnormals.Count > 0)
             {
                 var outputFile = new StreamWriter(Path.Combine(OutputPath, $"hotdot/abnormal.tsv"));

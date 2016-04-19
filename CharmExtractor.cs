@@ -23,12 +23,13 @@ namespace TeraDataExtractor
             var charmList = (from item in xml.Root.Elements("String") join icon in xml1.Root.Elements("Icon") on item.Attribute("id").Value equals icon.Attribute("charmId").Value
                              let id = item.Attribute("id").Value
                              let name = item.Attribute("string").Value
+                             let tooltip = item.Attribute("tooltip").Value
                              let iconName = icon.Attribute("iconName").Value
-                             select new { id, name , iconName }).ToList();
+                             select new { id, name , iconName, tooltip }).ToList();
             var outputTFile = new StreamWriter(Path.Combine(OutFolder, $"charms-{_region}.tsv"));
             foreach (var line in charmList)
             {
-                outputTFile.WriteLine($"{line.id}\t{line.name}\t{line.iconName.ToLowerInvariant()}");
+                outputTFile.WriteLine($"{line.id}\t{line.name}\t{line.iconName.ToLowerInvariant()}\t{line.tooltip}");
                 Program.Copytexture(line.iconName);
             }
             outputTFile.Close();
