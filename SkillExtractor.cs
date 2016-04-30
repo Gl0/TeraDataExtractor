@@ -256,7 +256,7 @@ namespace TeraDataExtractor
 
             foreach (string lvl in lvls)
             {
-                if (res.Contains(lvl))
+                if (res.EndsWith(lvl)||res.Contains(lvl+" "))
                 {
                     res = res.Replace(lvl,Lvl);
                     break;
