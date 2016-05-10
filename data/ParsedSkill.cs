@@ -21,6 +21,7 @@ namespace TeraDataExtractor
                 foreach (string mod in allmods)
                 {
                     if ((mod == " blast") && cut.Contains("priest")) continue;// fix holy shot=holy blast
+                    if ((mod == " combo") && !cut.Contains("assassin")) continue;// combo postfix - only for ninja
                     if (cut.RemoveFromEnd(mod, out cut))
                     {
                         modifiers.Add(mod);
@@ -127,7 +128,7 @@ namespace TeraDataExtractor
 
         public string Detail { get; } //hit number or other comment, such as "Explosion"
 
-        private List<string> allmods = new List<string>{" "," Start","00","01","02","03","04","05","06","07","08","09",
+        private List<string> allmods = new List<string>{" "," Start","00","01","02","03","04","05","06","07","08","09","10"," Combo",
             " Continuous"," Cast"," large"," Projectile"," Projectile2"," Projectile3"," RealTargeting"," Flying"," Explosion"," ExplosionforBot",
             " PositionSwap"," Activate"," Invoke"," LockOn"," Charge"," Moving"," Shot"," OverShot"," ON"," OFF"," Attack"," Single",
             " Chain"," Connect"," Long"," Short"," Use"," FURY"," Evade"," False"," True"," Drain"," Cancel"," ShortAirReaction",
