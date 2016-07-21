@@ -151,7 +151,7 @@ namespace TeraDataExtractor
                                   join names in Items on skills.skillid equals names.skillid
                                   orderby int.Parse(names.nameid)
                                   select new { abid = skills.abid, nameid = names.nameid, names.name }).ToList();
-            ItemAbnormals.Distinct((x,y)=>x.abid==y.abid);
+            ItemAbnormals=ItemAbnormals.Distinct((x,y)=>x.abid==y.abid,x=>x.abid.GetHashCode()).ToList();
 
             List<Skill> skilllist;
             new SkillExtractor(_region, out skilllist);
