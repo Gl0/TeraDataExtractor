@@ -24,6 +24,7 @@ namespace TeraDataExtractor
             _region = region;
             skilllist = new List<Skill>();
             RawExtract();
+            chained_skills();
             list = skilllist;
         }
         public SkillExtractor(string region)
@@ -266,6 +267,18 @@ namespace TeraDataExtractor
         }
         private static List<string> lvls = new List<string> { " I", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X",
             " XI", " XII", " XIII", " XIV", " XV", " XVI", " XVII", " XVIII", " XIX", " XX"};
+
+        public static string RemoveLvl(string name)
+        {
+            foreach (var lvl in lvls)
+            {
+                if (name.EndsWith(lvl) || name.Contains(lvl + " "))
+                {
+                    return name.Replace(lvl, string.Empty);
+                }
+            }
+            return name;
+        }
 
         public static string ClassConv(string PClass)
         {

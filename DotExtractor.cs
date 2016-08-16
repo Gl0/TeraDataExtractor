@@ -132,7 +132,7 @@ namespace TeraDataExtractor
             var Items = (from item in SkillToName join nam in ItemNames on item.nameid equals nam.nameid orderby item.skillid where nam.name != ""
                          select new { item.skillid, item.nameid, nam.name }).ToList();
 
-            var ItemSkills = "".Select(t => new { skillid = string.Empty, abid=string.Empty }).ToList();
+            var ItemSkills = "".Select(t => new { skillid = string.Empty, abid=string.Empty, template = string.Empty }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
@@ -143,8 +143,9 @@ namespace TeraDataExtractor
                                  let skillid = skills.Attribute("id").Value
                                  from abns in skills.Descendants().Where(x=> x.Name=="AbnormalityOnPvp"||x.Name == "AbnormalityOnCommon")
                                  let abid = abns.Attribute("id")==null? "": abns.Attribute("id").Value
-                                 where template == "9999" && skillid != "" && abid != ""
-                                 select new { skillid, abid });
+                                 where template != "" && 
+                                    skillid != "" && abid != ""
+                                 select new { skillid, abid, template});
                 ItemSkills = ItemSkills.Union(itemdata).ToList();
             }
             var ItemAbnormals = (from skills in ItemSkills
@@ -156,7 +157,24 @@ namespace TeraDataExtractor
             List<Skill> skilllist;
             new SkillExtractor(_region, out skilllist);
 
-            var xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
+            var xml1 = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
+            var templates = (from races in xml1.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = SkillExtractor.ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
+            //assume skills for different races and genders are the same per class 
+            templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
+            var directSKills = (from iskills in ItemSkills
+                                join temp in templates on iskills.template equals temp.templateId
+                                join names in skilllist on new { temp.PClass, iskills.skillid } equals new { names.PClass, skillid=names.Id }
+                                where iskills.abid != "902" //noctineum, bugged skills abnormals
+                                orderby int.Parse(iskills.abid)
+                                select new { abnormalid = iskills.abid, name = names.Name, iconName = names.IconName }).ToList();
+            var Passives = "".Select(t => new { abnormalid = string.Empty, name = string.Empty, iconName = string.Empty }).ToList();
+
+            foreach (var x1 in directSKills.GroupBy(x=>x.abnormalid))
+            {
+                Passives.Add(new { abnormalid = x1.Key, name = x1.Count()>1?SkillExtractor.RemoveLvl(x1.First().name): x1.First().name, iconName = x1.First().iconName });
+            }
+
+            xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
             var Glyphs = (from item in xml1.Root.Elements("String")
                           let passiveid = item.Attribute("id").Value
                           let name = item.Attribute("name").Value
@@ -166,7 +184,6 @@ namespace TeraDataExtractor
 
 
                         //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
-                        var Passives = "".Select(t => new { abnormalid = string.Empty, name = string.Empty,iconName = string.Empty }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Passivity/"))
