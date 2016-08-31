@@ -75,8 +75,8 @@ namespace TeraDataExtractor
                         let index = "value" + (dot.num == 1 ? "" : dot.num.ToString())
                         let change = (dot.method == "3" || dot.method == "4" || dot.method == "0")
                             ? (dot.type == "51" || dot.type == "52")
-                                ? Math.Abs(Math.Round(double.Parse(dot.amount, CultureInfo.InvariantCulture) * 100)).ToString(CultureInfo.InvariantCulture) + "%"
-                                : Math.Abs(Math.Round((1 - double.Parse(dot.amount, CultureInfo.InvariantCulture)) * 100)).ToString(CultureInfo.InvariantCulture) + "%"
+                                ? Math.Abs(Math.Round(double.Parse(dot.amount, CultureInfo.InvariantCulture) * 100,2)).ToString("r",CultureInfo.InvariantCulture) + "%"
+                                : Math.Abs(Math.Round((1 - double.Parse(dot.amount, CultureInfo.InvariantCulture)) * 100,2)).ToString("r",CultureInfo.InvariantCulture) + "%"
                             : dot.amount
                         select new formatter { abnormalid = dot.abnormalid, index = index, tick = dot.tick, change= change, time=dot.time }).ToDictionary(x => Tuple.Create(x.abnormalid, x.index));
 

@@ -101,7 +101,7 @@ namespace TeraDataExtractor
         }
         public override string ToString()
         {
-            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("F", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("F", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant();
+            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("R", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant();
         }
     }
 }
