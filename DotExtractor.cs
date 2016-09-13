@@ -67,8 +67,8 @@ namespace TeraDataExtractor
                                let num = item.Elements("AbnormalityEffect").TakeWhile(x => x != eff).Count() + 1
                                let amount = eff.Attribute("value") == null ? "" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51" || type == "52") && tick != "0") || (interesting.Contains(type) && isShow != "False")) && amount != "" && method != ""
-                               select new { abnormalid, type, amount, method, time, tick, num }).ToList();
+                               where (((type == "51" || type == "52") && tick != "0") || (interesting.Contains(type) && (isShow != "False" || abnormalid=="201" || abnormalid == "202"))) && amount != "" && method != "" 
+                               select new { abnormalid, type, amount, method, time, tick, num }).ToList();                                  //// 201 202 - marked as not shown, but needed
                 Dots = Dots.Union(Dotdata).ToList();
             }
             var subs = (from dot in Dots
