@@ -222,7 +222,10 @@ namespace TeraDataExtractor
                 if (subs.TryGetValue(Tuple.Create(abid, "value" + i), out changer))
                     result = result.Replace("$value" + i, changer.change).Replace("$tickInterval" + i, changer.tick);
                 else
-                    result = result.Replace("$value" + i, "unk"+i).Replace("$tickInterval" + i, "unk"+i);
+                    if (subs.TryGetValue(Tuple.Create(abid, "value"), out changer))
+                        result = result.Replace("$value" + i, changer.change+" (unk"+i+")").Replace("$tickInterval" + i, changer.tick);
+                    else
+                        result = result.Replace("$value" + i, "unk"+i).Replace("$tickInterval" + i, "unk"+i);
             }
             if (subs.TryGetValue(Tuple.Create(abid, "value"), out changer))
                 result = result.Replace("$value", changer.change).Replace("$tickInterval", changer.tick + "s").Replace("$time", long.Parse(changer.time)/1000 + "s");
