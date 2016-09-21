@@ -31,6 +31,7 @@ namespace TeraDataExtractor
         StunResist = 16, //something strange, internal itemname sleep_protect, but user string is stun resist, russian user string is "control effect resist"
         AllResist = 18,
         CritPower = 19,
+        CritPower1 = 36,
         Aggro = 20,
         NoMPDecay = 21, //slayer
         Attack = 22, //total damage modificator

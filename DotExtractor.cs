@@ -50,7 +50,7 @@ namespace TeraDataExtractor
         {
 
             var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty, num = 0 }).ToList();
-            var interesting = new string[] {"1", "3", "4", "5", "6", "7", "8", "9", "18", "19", "20", "22", "24", "25", "28", "30", "103", "104", "105", "108", "162", "167", "168", "203", "207", "210", "208", "221", "231", "236", "283" };
+            var interesting = new string[] {"1", "3", "4", "5", "6", "7", "8", "9", "18", "19","36", "20", "22", "24", "25", "28", "30", "103", "104", "105", "108", "162", "167", "168", "203", "207", "210", "208", "221", "231", "236", "283" };
             var notinteresting = new string[] {"1", "5", "8", "9", "18", "20", "28", "103", "105", "108", "168", "221" };
             foreach (
                 var file in
