@@ -236,7 +236,7 @@ namespace TeraDataExtractor
             var outputFile = new StreamWriter(Path.Combine(OutFolder, $"glyph-{_region}.tsv"));
             foreach (var glyph in Crests)
             {
-                outputFile.WriteLine(glyph.passiveid + "\t" + glyph.skillname + "\t" + glyph.iconName +"\t" +glyph.name + "\t" + glyph.glyphIcon + "\t" + glyph.tooltip );
+                outputFile.WriteLine(glyph.passiveid + "\t" + glyph.skillname + "\t" + glyph.iconName.ToLowerInvariant() + "\t" +glyph.name + "\t" + glyph.glyphIcon.ToLowerInvariant() + "\t" + glyph.tooltip );
                 Program.Copytexture(glyph.glyphIcon);
                 Program.Copytexture(glyph.iconName);
             }
