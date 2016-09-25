@@ -180,10 +180,9 @@ namespace TeraDataExtractor
                           let name = item.Attribute("name").Value
                           let skillname = item.Attribute("skillName").Value
                           let iconName = skilllist.Find(x => x.Name.Contains(skillname.Replace("Всплеск ярости", "Сила гиганта")))?.IconName ?? ""
-                          select new { passiveid, name, skillname, iconName});
-
-
-                        //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
+                          let tooltip = item.Attribute("tooltip").Value
+                          select new { passiveid, name, skillname, iconName, tooltip});
+            //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Passivity/"))
@@ -211,6 +210,39 @@ namespace TeraDataExtractor
                        where (nam.name != "" || iskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
                        select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,nam.tooltip,gskill==null?icon.iconName:gskill.iconName)).ToList();
+
+            var Crests = "".Select(t => new { passiveid = string.Empty, skillname=string.Empty, iconName = string.Empty, name = string.Empty, glyphIcon=string.Empty,tooltip=string.Empty}).ToList();
+            xml1 = XDocument.Load(RootFolder + _region + "/CrestIconData.xml");
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/Passivity/"))
+            {
+                var xml = XDocument.Load(file);
+                var CrestsData = (from item in xml.Root.Elements("Passive")
+                                   let value = double.Parse(item.Attribute("value")?.Value??"0")
+                                   let prob = double.Parse(item.Attribute("prob").Value??"0")*100
+                                   let type = item.Attribute("type").Value
+                                   let passiveid = item.Attribute("id").Value
+                                   join glyph in Glyphs on passiveid equals glyph.passiveid
+                                   join icon in xml1.Root.Elements("Icon") on passiveid equals icon.Attribute("crestId").Value
+                                   let glyphIcon = icon.Attribute("iconName").Value
+                                   let tooltip = glyph.tooltip == null ? "" : glyph.tooltip.Replace("$BR", " ").Replace("\n", " ").Replace("$value",
+                                   type=="72"?(-value).ToString():Math.Round(Math.Abs(value*100-100),2)+"%"
+                                   ).Replace("$prob", prob+"%")
+                                  select new { passiveid, glyph.skillname, glyph.iconName, glyph.name, glyphIcon, tooltip}).ToList();
+                Crests = Crests.Union(CrestsData, (x, y) => (x.passiveid == y.passiveid), x => x.passiveid.GetHashCode()).ToList();
+            }
+
+            var outputFile = new StreamWriter(Path.Combine(OutFolder, $"glyph-{_region}.tsv"));
+            foreach (var glyph in Crests)
+            {
+                outputFile.WriteLine(glyph.passiveid + "\t" + glyph.skillname + "\t" + glyph.iconName +"\t" +glyph.name + "\t" + glyph.glyphIcon + "\t" + glyph.tooltip );
+                Program.Copytexture(glyph.glyphIcon);
+                Program.Copytexture(glyph.iconName);
+            }
+            outputFile.Flush();
+            outputFile.Close();
+
         }
 
         private string SubValues(string text, string abid, Dictionary<Tuple<string,string>,formatter> subs)
