@@ -45,10 +45,10 @@ namespace TeraDataExtractor
             var itemList = (from item in xml.Root.Elements("Item")
                               join str in xml1.Root.Elements("String") on item.Attribute("id").Value equals str.Attribute("id").Value
                               let id = item.Attribute("id").Value
-                              let name = str.Attribute("string").Value
+                              let name = str.Attribute("string")?.Value??""
                               let category= item.Attribute("category")?.Value??""
-                              where category=="fiber"|| category == "metal" || category == "alchemy"
-                              select new { id, name }).ToList();
+                              where (category=="fiber"|| category == "metal" || category == "alchemy" || category == "")&& name!=""
+                            select new { id, name }).ToList();
             var outputTFile = new StreamWriter(Path.Combine(OutFolder, $"items-{_region}.tsv"));
             foreach (var line in itemList)
             {
