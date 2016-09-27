@@ -44,16 +44,15 @@ namespace TeraDataExtractor
             new DotExtractor("JP");
             new DotExtractor("KR");
 
-            /* Not needed more, charms are in hotdot now.
-            //new CharmExtractor("RU");
-            //new CharmExtractor("EU-EN");
-            //new CharmExtractor("EU-FR");
-            //new CharmExtractor("EU-GER");
-            //new CharmExtractor("NA");
-            //new CharmExtractor("TW");
-            //new CharmExtractor("JP");
-            //new CharmExtractor("KR");
-            */
+            new Quests("RU");
+            new Quests("EU-EN");
+            new Quests("EU-FR");
+            new Quests("EU-GER");
+            new Quests("NA");
+            new Quests("TW");
+            new Quests("JP");
+            new Quests("KR");
+
             PackIcons();
         }
         public static void Copytexture(string name,int id=0)

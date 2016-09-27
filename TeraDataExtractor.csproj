@@ -55,6 +55,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="data\Zone.cs" />
+    <Compile Include="Quests.cs" />
     <Compile Include="SkillExtractor.cs" />
   </ItemGroup>
   <ItemGroup>
