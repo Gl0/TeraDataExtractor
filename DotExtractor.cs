@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
 using System.Linq;
-using System.Text;
 
 namespace TeraDataExtractor
 {
@@ -156,7 +155,7 @@ namespace TeraDataExtractor
 
             List<Skill> skilllist;
             new SkillExtractor(_region, out skilllist);
-
+            if (_region!="KR") skilllist.Where(x=>x.Name.Contains(":")).ToList().ForEach(x=>x.Name=x.Name.Replace(":",""));
             var xml1 = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
             var templates = (from races in xml1.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = SkillExtractor.ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
             //assume skills for different races and genders are the same per class 
@@ -179,9 +178,16 @@ namespace TeraDataExtractor
                           let passiveid = item.Attribute("id").Value
                           let name = item.Attribute("name").Value
                           let skillname = item.Attribute("skillName").Value
-                          let iconName = skilllist.Find(x => x.Name.Contains(skillname.Replace("Всплеск ярости", "Сила гиганта")))?.IconName ?? ""
+                          let iconName1= skilllist.Find(x => x.Name.Contains(skillname.Replace("Всплеск ярости", "Сила гиганта").Replace("Разряд бумеранга", "Возвратный разряд").Replace("Фронтальная защита", "Сзывающий клич").Replace(":", "")))?.IconName ?? ""
+                          let skillId1= skilllist.Find(x => x.Name.Contains(skillname.Replace("Всплеск ярости", "Сила гиганта").Replace("Разряд бумеранга", "Возвратный разряд").Replace("Фронтальная защита", "Сзывающий клич").Replace(":", "")))?.Id ?? ""
+                          let iconName = _region == "KR"||iconName1 !="" || !name.Contains(" ") ? iconName1 : skilllist.Find(x => x.Name.ToLowerInvariant().Contains(
+                              _region=="EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ')+1)
+                              ))?.IconName ?? ""
+                          let skillId = _region == "KR"||skillId1 !="" || !name.Contains(" ") ? skillId1 : skilllist.Find(x => x.Name.ToLowerInvariant().Contains(
+                              _region == "KR" || _region == "EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ') + 1)
+                              ))?.Id ?? ""
                           let tooltip = item.Attribute("tooltip").Value
-                          select new { passiveid, name, skillname, iconName, tooltip});
+                          select new { passiveid, name, skillname, skillId, iconName, tooltip});
             //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
             foreach (
                 var file in
@@ -211,7 +217,7 @@ namespace TeraDataExtractor
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
                        select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, int.Parse(dot.time), int.Parse(dot.tick), gskill==null?nam.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,nam.tooltip,gskill==null?icon.iconName:gskill.iconName)).ToList();
 
-            var Crests = "".Select(t => new { passiveid = string.Empty, skillname=string.Empty, iconName = string.Empty, name = string.Empty, glyphIcon=string.Empty,tooltip=string.Empty}).ToList();
+            var Crests = "".Select(t => new { passiveid = string.Empty, skillname=string.Empty, skillId=string.Empty, iconName = string.Empty, name = string.Empty, glyphIcon=string.Empty,tooltip=string.Empty}).ToList();
             xml1 = XDocument.Load(RootFolder + _region + "/CrestIconData.xml");
             foreach (
                 var file in
@@ -229,14 +235,14 @@ namespace TeraDataExtractor
                                    let tooltip = glyph.tooltip == null ? "" : glyph.tooltip.Replace("$BR", " ").Replace("\n", " ").Replace("$value",
                                    type=="72"?(-value).ToString():Math.Round(Math.Abs(value*100-100),2)+"%"
                                    ).Replace("$prob", prob+"%")
-                                  select new { passiveid, glyph.skillname, glyph.iconName, glyph.name, glyphIcon, tooltip}).ToList();
+                                  select new { passiveid, glyph.skillname, glyph.skillId, glyph.iconName, glyph.name, glyphIcon, tooltip}).ToList();
                 Crests = Crests.Union(CrestsData, (x, y) => (x.passiveid == y.passiveid), x => x.passiveid.GetHashCode()).ToList();
             }
 
             var outputFile = new StreamWriter(Path.Combine(OutFolder, $"glyph-{_region}.tsv"));
             foreach (var glyph in Crests)
             {
-                outputFile.WriteLine(glyph.passiveid + "\t" + glyph.skillname + "\t" + glyph.iconName.ToLowerInvariant() + "\t" +glyph.name + "\t" + glyph.glyphIcon.ToLowerInvariant() + "\t" + glyph.tooltip );
+                outputFile.WriteLine(glyph.passiveid + "\t" + glyph.skillname + "\t" + glyph.skillId + "\t" + glyph.iconName.ToLowerInvariant() + "\t" +glyph.name + "\t" + glyph.glyphIcon.ToLowerInvariant() + "\t" + glyph.tooltip );
                 Program.Copytexture(glyph.glyphIcon);
                 Program.Copytexture(glyph.iconName);
             }
