@@ -178,13 +178,15 @@ namespace TeraDataExtractor
                           let passiveid = item.Attribute("id").Value
                           let name = item.Attribute("name").Value
                           let skillname = item.Attribute("skillName").Value
-                          let iconName1= skilllist.Find(x => x.Name.Contains(skillname.Replace("Всплеск ярости", "Сила гиганта").Replace("Разряд бумеранга", "Возвратный разряд").Replace("Фронтальная защита", "Сзывающий клич").Replace(":", "")))?.IconName ?? ""
-                          let skillId1= skilllist.Find(x => x.Name.Contains(skillname.Replace("Всплеск ярости", "Сила гиганта").Replace("Разряд бумеранга", "Возвратный разряд").Replace("Фронтальная защита", "Сзывающий клич").Replace(":", "")))?.Id ?? ""
+                          let searchname = _region=="RU"? skillname.Replace("Всплеск ярости", "Сила гиганта").Replace("Разряд бумеранга", "Возвратный разряд").Replace("Фронтальная защита", "Сзывающий клич").Replace(":", "") : 
+                                            _region !="KR"?skillname.Replace(":",""): skillname
+                          let iconName1= skilllist.Find(x => x.Name.Contains(searchname))?.IconName ?? ""
+                          let skillId1= skilllist.Find(x => x.Name.Contains(searchname))?.Id ?? ""
                           let iconName = _region == "KR"||iconName1 !="" || !name.Contains(" ") ? iconName1 : skilllist.Find(x => x.Name.ToLowerInvariant().Contains(
-                              _region=="EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ')+1)
+                              _region == "EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ')+1)
                               ))?.IconName ?? ""
                           let skillId = _region == "KR"||skillId1 !="" || !name.Contains(" ") ? skillId1 : skilllist.Find(x => x.Name.ToLowerInvariant().Contains(
-                              _region == "KR" || _region == "EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ') + 1)
+                              _region == "EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ') + 1)
                               ))?.Id ?? ""
                           let tooltip = item.Attribute("tooltip").Value
                           select new { passiveid, name, skillname, skillId, iconName, tooltip});
