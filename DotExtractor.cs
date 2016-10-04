@@ -235,7 +235,7 @@ namespace TeraDataExtractor
                                    join icon in xml1.Root.Elements("Icon") on passiveid equals icon.Attribute("crestId").Value
                                    let glyphIcon = icon.Attribute("iconName").Value
                                    let tooltip = glyph.tooltip == null ? "" : glyph.tooltip.Replace("$BR", " ").Replace("\n", " ").Replace("$value",
-                                   type=="72"?(-value).ToString():Math.Round(Math.Abs(value*100-100),2)+"%"
+                                   type=="72"?(-value).ToString():type=="171"||type=="26"? value.ToString():Math.Round(Math.Abs(value*100-100),2)+"%"
                                    ).Replace("$prob", prob+"%")
                                   select new { passiveid, glyph.skillname, glyph.skillId, glyph.iconName, glyph.name, glyphIcon, tooltip}).ToList();
                 Crests = Crests.Union(CrestsData, (x, y) => (x.passiveid == y.passiveid), x => x.passiveid.GetHashCode()).ToList();
