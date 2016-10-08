@@ -50,7 +50,7 @@ namespace TeraDataExtractor
 
             var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty, num = 0 }).ToList();
             var interesting = new string[] {"1", "3", "4", "5", "6", "7", "8", "9", "18", "19","36", "20", "22", "24", "25", "28", "30", "103", "104", "105", "108", "162", "167", "168", "203", "207", "210", "208", "221", "231", "236", "237" , "249", "255", "283" };
-            var notinteresting = new string[] {"1", "5", "8", "9", "18", "20", "28", "103", "105", "108", "168", "221","255" };
+            var notinteresting = new string[] {"1", "5", "8", "9", "18", "20", "28", "103", "105", "108", "168", "221" };
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))
@@ -235,7 +235,7 @@ namespace TeraDataExtractor
                                    join icon in xml1.Root.Elements("Icon") on passiveid equals icon.Attribute("crestId").Value
                                    let glyphIcon = icon.Attribute("iconName").Value
                                    let tooltip = glyph.tooltip == null ? "" : glyph.tooltip.Replace("$BR", " ").Replace("\n", " ").Replace("$value",
-                                   type=="72"?(-value).ToString():type=="171"||type=="26"||type=="175"? value.ToString():Math.Round(Math.Abs(value*100-100),2)+"%"
+                                   type=="72"?(-value).ToString():type=="171"||type=="26"||type== "175"? value.ToString():Math.Round(Math.Abs(value*100-100),2)+"%"
                                    ).Replace("$prob", prob+"%")
                                   select new { passiveid, glyph.skillname, glyph.skillId, glyph.iconName, glyph.name, glyphIcon, tooltip}).ToList();
                 Crests = Crests.Union(CrestsData, (x, y) => (x.passiveid == y.passiveid), x => x.passiveid.GetHashCode()).ToList();
