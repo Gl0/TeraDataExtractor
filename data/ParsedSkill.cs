@@ -125,7 +125,7 @@ namespace TeraDataExtractor
                 { Detail = "stopping"; }
 
             if (modifiers.Contains(" jin"))
-                { Detail = "overchannel"; }
+                { Detail = "MB"; }
 
             if (modifiers.Contains(" for distortion"))
                 { Detail = Detail + " FD"; }
