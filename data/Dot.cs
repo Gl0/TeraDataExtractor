@@ -62,6 +62,9 @@ namespace TeraDataExtractor
         HPLoss = 221, //loss hp at the and of debuff
         Mark = 231, // Velik's Mark/Curse of Kaprima = increase received damage when marked
         CastSpeed = 236,
+        CrystalBind = 237,
+        CCrystalBind = 249,
+        DropUp = 255,
         Range = 259, //increase melee range? method 0 value 0.1= +10%
         //264 = redirect abnormality, value= new abnormality, bugged due to wrong float format in xml.
         Rage = 280, //tick - RageChange, notick (one change) - Rage 
