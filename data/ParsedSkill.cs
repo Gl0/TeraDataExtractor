@@ -22,6 +22,15 @@ namespace TeraDataExtractor
                 {
                     if ((mod == " blast") && cut.Contains("priest")) continue;// fix holy shot=holy blast
                     if ((mod == " combo") && !cut.Contains("assassin")) continue;// combo postfix - only for ninja
+                    if ((mod == " jin")&&cut.Contains("sorcerer"))
+                    {
+                        if (cut.Remove(mod,out cut))
+                        {
+                            modifiers.Add(mod);
+                            _cut = true;
+                            break;
+                        }
+                    }
                     if (cut.RemoveFromEnd(mod, out cut))
                     {
                         modifiers.Add(mod);
@@ -115,8 +124,14 @@ namespace TeraDataExtractor
             if (modifiers.Contains(" stopping"))
                 { Detail = "stopping"; }
 
+            if (modifiers.Contains(" jin"))
+                { Detail = "overchannel"; }
+
+            if (modifiers.Contains(" for distortion"))
+                { Detail = Detail + " FD"; }
+
             if (modifiers.Contains(" side"))
-                { Detail = "Side "+Detail; }
+                { Detail = "Side " + Detail; }
         }
         public string BaseName { get; }
         private List<string> modifiers { get; }
@@ -133,7 +148,7 @@ namespace TeraDataExtractor
             " PositionSwap"," Activate"," Invoke"," LockOn"," Charge"," Moving"," Shot"," OverShot"," ON"," OFF"," Attack"," Single",
             " Chain"," Connect"," Long"," Short"," Use"," FURY"," Evade"," False"," True"," Drain"," Cancel"," ShortAirReaction",
             " Change"," immediateCancel"," rearCancel"," Connector"," SuperArmor"," RangeTarget"," Loop"," forOnlyEffect",
-            " forSummon"," forDamage", " forBot", " Side", " Fail", " Blast", " Return", " Stopping"};
+            " forSummon"," forDamage", " forBot", " Side", " Fail", " Blast", " Return", " Stopping", " Jin", " For Distortion"};
 
         private static Dictionary<string, string> levels = new Dictionary<string, string>
         { {" lv01"," I"},{" lv02"," II"},{" lv03"," III"},{" lv04"," IV"},{" lv05"," V"},{" lv06"," VI"},{" lv07"," VII"},{" lv08"," VIII"},{" lv09"," IX"},{" lv10"," X"},
@@ -143,6 +158,8 @@ namespace TeraDataExtractor
         //01 02 03 04 etc = multihit combo hit number
         //Continuous = chained
         //01_Continuous = chained multihit combo
+        //Jin = Overchannel active
+        //For Distortion = atk+aspd buff active
         //Cast =
         //Cast_large = chained
         //Projectile 00 = when projectile generated from charged multihit (Shot 00) shot number -1 (sorcerer skillid ends on 0 while Projectile 01 = no multihit = ignore 01, Priest: projectile 02 = hit 2)

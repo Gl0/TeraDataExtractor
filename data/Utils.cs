@@ -78,14 +78,25 @@ namespace TeraDataExtractor
             {
                 left = s.Substring(0, s.Length - suffix.Length);
                 return true;
-
             }
-            else
             {
                 left = s;
                 return false;
             }
         }
+        public static bool Remove(this string s, string mod, out string left)
+        {
+            if (s.Contains(mod))
+            {
+                left = s.Replace(mod,"");
+                return true;
+            }
+            {
+                left = s;
+                return false;
+            }
+        }
+
         public static string Cap(this string x)
         {
             return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x.ToLower());
