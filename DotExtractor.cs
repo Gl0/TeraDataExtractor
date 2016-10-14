@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -174,14 +175,16 @@ namespace TeraDataExtractor
             }
 
             xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
-            var Glyphs = (from item in xml1.Root.Elements("String")
+            var xml2 = XDocument.Load(RootFolder + _region + "/CrestData.xml");
+            var Glyphs = (from item in xml1.Root.Elements("String") join crestItem in xml2.Root.Elements("CrestItem") on item.Attribute("id").Value equals crestItem.Attribute("id").Value
                           let passiveid = item.Attribute("id").Value
                           let name = item.Attribute("name").Value
+                          let pclass = SkillExtractor.ClassConv(crestItem.Attribute("class").Value)
                           let skillname = item.Attribute("skillName").Value
                           let searchname = _region=="RU"? skillname.Replace("Всплеск ярости", "Сила гиганта").Replace("Разряд бумеранга", "Возвратный разряд").Replace("Фронтальная защита", "Сзывающий клич").Replace(":", "") : 
                                             _region !="KR"?skillname.Replace(":",""): skillname
-                          let iconName1= skilllist.Find(x => x.Name.Contains(searchname))?.IconName ?? ""
-                          let skillId1= skilllist.Find(x => x.Name.Contains(searchname))?.Id ?? ""
+                          let iconName1= skilllist.Find(x => x.Name.Contains(searchname) && x.PClass==pclass)?.IconName ?? ""
+                          let skillId1= skilllist.Find(x => x.Name.Contains(searchname) && x.PClass == pclass)?.Id ?? ""
                           let iconName = _region == "KR"||iconName1 !="" || !name.Contains(" ") ? iconName1 : skilllist.Find(x => x.Name.ToLowerInvariant().Contains(
                               _region == "EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ')+1)
                               ))?.IconName ?? ""
