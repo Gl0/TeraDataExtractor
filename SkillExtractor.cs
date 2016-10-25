@@ -257,9 +257,14 @@ namespace TeraDataExtractor
 
             foreach (string lvl in lvls)
             {
-                if (res.EndsWith(lvl)||res.Contains(lvl+" "))
+                if (res.EndsWith(lvl))
                 {
-                    res = res.Replace(lvl,Lvl);
+                    res = res.Substring(0, res.Length - lvl.Length) + Lvl;
+                    break;
+                }
+                else if (res.Contains(lvl+" "))
+                {
+                    res = res.Replace(lvl+" ",Lvl+" ");
                     break;
                 }
             }
@@ -272,9 +277,15 @@ namespace TeraDataExtractor
         {
             foreach (var lvl in lvls)
             {
-                if (name.EndsWith(lvl) || name.Contains(lvl + " "))
+                if (name.EndsWith(lvl))
                 {
-                    return name.Replace(lvl, string.Empty);
+                    name = name.Substring(0, name.Length - lvl.Length);
+                    break;
+                }
+                else if (name.Contains(lvl + " "))
+                {
+                    name = name.Replace(lvl, string.Empty);
+                    break;
                 }
             }
             return name;
