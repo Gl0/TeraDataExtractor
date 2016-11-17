@@ -67,7 +67,7 @@ namespace TeraDataExtractor
                                let num = item.Elements("AbnormalityEffect").TakeWhile(x => x != eff).Count() + 1
                                let amount = eff.Attribute("value") == null ? "" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51" || type == "52") && tick != "0") || (interesting.Contains(type) && (isShow != "" || abnormalid=="201" || abnormalid == "202"))) && amount != "" && method != "" 
+                               where (((type == "51" || type == "52") && tick != "0") || (interesting.Contains(type) && (isShow != "False" || abnormalid=="201" || abnormalid == "202"))) && amount != "" && method != "" 
                                select new { abnormalid, type, amount, method, time, tick, num }).ToList();                                  //// 201 202 - marked as not shown, but needed
                 Dots = Dots.Union(Dotdata).ToList();
                 var parser = (from item in xml.Root.Elements("Abnormal")
@@ -98,7 +98,7 @@ namespace TeraDataExtractor
                                let num = par.num
                                let amount = eff.Attribute("value") == null ? "" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51" || type == "52") && tick != "0") || (interesting.Contains(type) && (isShow != "" || abnormalid == "201" || abnormalid == "202"))) && amount != "" && method != ""
+                               where (((type == "51" || type == "52") && tick != "0") || (interesting.Contains(type) && (isShow != "False" || abnormalid == "201" || abnormalid == "202"))) && amount != "" && method != ""
                                select new { abnormalid, type, amount, method, time, tick, num }).ToList();
                 Dots = Dots.Union(Dotdata).ToList();
                 parser = parser.Distinct((x, y) => x.redirected.Equals(y.redirected), x => x.redirected.GetHashCode()).ToList();
