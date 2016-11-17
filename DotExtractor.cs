@@ -285,8 +285,8 @@ namespace TeraDataExtractor
             {
                 var xml = XDocument.Load(file);
                 var CrestsData = (from item in xml.Root.Elements("Passive")
-                                   let value = double.Parse(item.Attribute("value")?.Value??"0")
-                                   let prob = double.Parse(item.Attribute("prob").Value??"0")*100
+                                   let value = double.Parse(item.Attribute("value")?.Value??"0", CultureInfo.InvariantCulture)
+                                   let prob = double.Parse(item.Attribute("prob").Value??"0", CultureInfo.InvariantCulture) *100
                                    let type = item.Attribute("type").Value
                                    let passiveid = item.Attribute("id").Value
                                    join glyph in Glyphs on passiveid equals glyph.passiveid
