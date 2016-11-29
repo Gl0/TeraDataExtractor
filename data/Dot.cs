@@ -71,6 +71,7 @@ namespace TeraDataExtractor
         //264 = redirect abnormality, value= new abnormality, bugged due to wrong float format in xml.
         Rage = 280, //tick - RageChange, notick (one change) - Rage 
         SuperArmor = 283,
+        ForceCrit = 316, //archer's Find Weakness = next hit will trigger critpower crystalls
         Charm = 65535
     }
     class HotDot
