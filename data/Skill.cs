@@ -93,4 +93,76 @@ namespace TeraDataExtractor
             return (PClass == y.PClass) ? int.Parse(Id).CompareTo(int.Parse(y.Id)) : (y.PClass == "Common") ? -1 : (PClass == "Common") ? 1 : string.Compare(PClass, y.PClass);
         }
     }
+
+    public class PetSkill : IComparable<PetSkill>
+    {
+        public PetSkill(string huntingZoneId, string template, string petName, string id, string name, string iconName = "")
+        {
+            HZ = huntingZoneId;
+            Template = template;
+            PetName = petName;
+            Id = id;
+            Name = name;
+            IconName = iconName;
+        }
+
+        public string HZ { get; }
+        public string Template { get; }
+        public string PetName { get; }
+        public string Id { get; }
+        public string Name { get; set; }
+        public string IconName { get; set; }
+        public Skill Parent { get; set; } //1st way
+        public override int GetHashCode()
+        {
+            return (HZ + Template + Id).GetHashCode();
+        }
+        public static bool operator ==(PetSkill x, PetSkill y)
+        {
+            if ((object)y == null)
+            {
+                return false;
+            }
+            return x.Equals(y);
+        }
+        public static bool operator !=(PetSkill x, PetSkill y)
+        {
+            return !(x == y);
+        }
+        public string toTSV() { return HZ + "\t" + Template + "\t" + PetName + "\t" + Id + "\t" + Name + "\t" + IconName.ToLowerInvariant(); }
+        public string toCSV() { return HZ + ";" + Template + ";" + PetName + ";" + Id + ";" + Name + ";" + IconName.ToLowerInvariant(); }
+
+        public bool Equals(PetSkill y)
+        {
+            if ((object)y == null)
+            {
+                return false;
+            }
+            return (HZ == y.HZ) && (Template == y.Template) && (Id == y.Id);
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            PetSkill p = obj as PetSkill;
+            if ((System.Object)p == null)
+            {
+                return false;
+            }
+            return this.Equals(p);
+        }
+        public override string ToString()
+        {
+            return toCSV();
+        }
+
+        public int CompareTo(PetSkill y)
+        {
+            if (y == null) return 1;
+            return HZ == y.HZ && Template==y.Template ? int.Parse(Id).CompareTo(int.Parse(y.Id)) : (HZ == y.HZ) ? int.Parse(Template).CompareTo(int.Parse(y.Template)) : int.Parse(HZ).CompareTo(int.Parse(y.HZ));
+        }
+    }
+
 }

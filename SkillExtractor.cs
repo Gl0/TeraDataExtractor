@@ -45,6 +45,65 @@ namespace TeraDataExtractor
             }
             outputTFile.Flush();
             outputTFile.Close();
+            VehicleSkills();
+        }
+
+        private void VehicleSkills()
+        {
+            var xml = XDocument.Load(RootFolder + _region + "/StrSheet_Creature.xml");
+            var mobNames = (from hunting in xml.Root.Elements("HuntingZone") let idzone = hunting.Attribute("id").Value from entity in hunting.Elements("String") let template = entity.Attribute("templateId").Value let name = entity.Attribute("name").Value where name != "" && template != "" && idzone != "" select new { idzone, template, name }).ToList();
+            xml = XDocument.Load(RootFolder + _region + "/StrSheet_VehicleSkill.xml");
+            var xml1 = XDocument.Load(RootFolder + _region + "/VehicleSkillIconData.xml");
+            var petskills = (from sn in xml.Root.Elements("String")
+                let idzone = sn.Attribute("huntingZoneId").Value
+                let template = sn.Attribute("templateId").Value
+                let id = sn.Attribute("id").Value
+                let name = sn.Attribute("name").Value
+                join mobName in mobNames on new {idzone, template} equals new {mobName.idzone, mobName.template} into snms
+                from snm in snms.DefaultIfEmpty()
+                let petname = snm?.name??""
+                join si in xml1.Root.Elements("Icon") on new { idzone, template, id } equals
+                                     new
+                                     {
+                                         idzone = si.Attribute("huntingZoneId").Value,
+                                         template = si.Attribute("templateId").Value,
+                                         id = si.Attribute("skillId").Value
+                                     }
+                             let icon = si.Attribute("iconName").Value
+                             select new PetSkill(idzone, template, petname, id, name, icon)
+                ).ToList();
+            var ChainSkills = "".Select(t => new {hz=string.Empty, template=string.Empty, skillId=string.Empty, parent=string.Empty }).ToList();
+            foreach (
+                var file in
+                    Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
+            {
+                xml = XDocument.Load(file);
+                var chaindata = (from pet in petskills
+                                 join skills in xml.Root.Elements("Skill") on new {hz=pet.HZ,template=pet.Template} equals new {hz=skills.Parent.Attribute("huntingZoneId").Value, template=skills.Attribute("templateId").Value }
+                                 let parent=skills.Attribute("id")?.Value??"0"
+                                 let next=skills.Attribute("nextSkill")?.Value??"0"
+                                 from projectiles in skills.Descendants("ProjectileSkill").DefaultIfEmpty()
+                                 let id=projectiles?.Attribute("id")?.Value??"0"
+                                 where parent!="0"&&(next!="0"||id!="0")
+                                 select new {hz=pet.HZ, template=pet.Template, skillId=id=="0"?next:id, parent });
+                ChainSkills = ChainSkills.Union(chaindata, (x, y) => x.hz==y.hz && x.template==y.template && x.skillId == y.skillId && x.parent == y.parent, 
+                                                x => (x.hz + x.template + x.parent + x.skillId).GetHashCode()).ToList();
+            }
+            ChainSkills.ForEach(x =>
+            {
+                var found = petskills.FirstOrDefault(z => x.hz == z.HZ && x.template == z.Template && x.parent == z.Id);
+                if (found != null && !petskills.Any(z => x.hz == z.HZ && x.template == z.Template && x.skillId == z.Id))
+                    petskills.Add(new PetSkill(x.hz,x.template,found.PetName,x.skillId,found.Name,found.IconName));
+            });
+            petskills.Sort();
+            var outputTFile = new StreamWriter(Path.Combine(OutFolder, $"pets-skills-{_region}.tsv"));
+            foreach (PetSkill line in petskills)
+            {
+                outputTFile.WriteLine(line.toTSV());
+                Program.Copytexture(line.IconName);
+            }
+            outputTFile.Flush();
+            outputTFile.Close();
         }
         private void loadoverride()
         {
