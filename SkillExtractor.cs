@@ -78,6 +78,8 @@ namespace TeraDataExtractor
                     Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
             {
                 xml = XDocument.Load(file);
+                var test= xml.Root.Attribute("huntingZoneId").Value;
+                if (!petskills.Any(x=>x.HZ==test))continue;
                 var chaindata = (from pet in petskills
                                  join skills in xml.Root.Elements("Skill") on new {hz=pet.HZ,template=pet.Template} equals new {hz=skills.Parent.Attribute("huntingZoneId").Value, template=skills.Attribute("templateId").Value }
                                  let parent=skills.Attribute("id")?.Value??"0"
@@ -171,6 +173,7 @@ namespace TeraDataExtractor
                     Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
             {
                 xml = XDocument.Load(file);
+                if (xml.Root.Attribute("huntingZoneId")?.Value!="0") continue;
                 var chaindata = (from temp in templates join skills in xml.Root.Elements("Skill") on temp.templateId equals skills.Attribute("templateId").Value into Pskills
                                  from Pskill in Pskills
                                     let PClass = temp.PClass

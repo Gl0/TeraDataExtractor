@@ -191,11 +191,12 @@ namespace TeraDataExtractor
                     Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
             {
                 var xml = XDocument.Load(file);
+                if (xml.Root.Attribute("huntingZoneId")?.Value != "0") continue;
                 var itemdata = (from skills in xml.Root.Elements("Skill")
                                  let template = skills.Attribute("templateId").Value 
                                  let skillid = skills.Attribute("id").Value
                                  from abns in skills.Descendants().Where(x=> x.Name=="AbnormalityOnPvp"||x.Name == "AbnormalityOnCommon")
-                                 let abid = abns.Attribute("id")==null? "": abns.Attribute("id").Value
+                                 let abid = abns.Attribute("id")?.Value??""
                                  where template != "" && 
                                     skillid != "" && abid != ""
                                  select new { skillid, abid, template});
