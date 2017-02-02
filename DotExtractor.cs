@@ -125,7 +125,7 @@ namespace TeraDataExtractor
                                 let abnormalid = item.Attribute("id").Value
                                 let name = item.Attribute("name") == null ? "" : item.Attribute("name").Value
                                 let tooltip = item.Attribute("tooltip") == null ? "" : SubValues(item.Attribute("tooltip").Value
-                                    .Replace("$H_W_GOOD","").Replace("$COLOR_END","").Replace("$H_W_BAD","").Replace("$H_W_Bad","").Replace("$BR"," ").Replace("<br>", " ").Replace("\n"," "),abnormalid,subs)
+                                    .Replace("$H_W_GOOD","").Replace("$COLOR_END","").Replace("$H_W_BAD","").Replace("$H_W_Bad","").Replace("$BR"," ").Replace("<br>", " ").Replace("\n"," ").Replace("\r", " "), abnormalid,subs)
                                 where abnormalid != "" && name!=""
                                 select new { abnormalid, name, tooltip }).ToList();
                 Names = Names.Union(Namedata, (x, y) => x.abnormalid == y.abnormalid, x => x.abnormalid.GetHashCode()).ToList();
