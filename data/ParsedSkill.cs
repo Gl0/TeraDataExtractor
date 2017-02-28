@@ -147,13 +147,14 @@ namespace TeraDataExtractor
             " Continuous"," Cast"," large"," Projectile"," Projectile2"," Projectile3"," RealTargeting"," Flying"," Explosion"," ExplosionforBot",
             " PositionSwap"," Activate"," Invoke"," LockOn"," Charge"," Moving"," Shot"," OverShot"," ON"," OFF"," Attack"," Single",
             " Chain"," Connect"," Long"," Short"," Use"," FURY"," Evade"," False"," True"," Drain"," Cancel"," ShortAirReaction",
-            " Change"," immediateCancel"," rearCancel"," Connector"," SuperArmor"," RangeTarget"," Loop"," forOnlyEffect",
+            " Change"," immediateCancel"," rearCancel"," Connector"," SuperArmor"," RangeTarget"," Loop"," forOnlyEffect"," passiveOn",
             " forSummon"," forDamage", " forBot", " Side", " Fail", " Blast", " Return", " Stopping", " Jin", " For Distortion", " 실패", " 성공"};
 
         private static Dictionary<string, string> levels = new Dictionary<string, string>
         { {" lv01"," I"},{" lv02"," II"},{" lv03"," III"},{" lv04"," IV"},{" lv05"," V"},{" lv06"," VI"},{" lv07"," VII"},{" lv08"," VIII"},{" lv09"," IX"},{" lv10"," X"},
           {" lv11"," XI"},{" lv12"," XII"},{" lv13"," XIII"},{" lv14"," XIV"},{" lv15"," XV"},{" lv16"," XVI"},{" lv17"," XVII"},{" lv18"," XVIII"},{" lv19"," XIX"},{" lv20"," XX"}};
 
+        //passiveOn - keen hb-7
         //PREFIX 이펙트불필요 = "No effects needed" - glaiver skills, not sure what it's needed for, but now ignoring, since all such skills have explicit name in StrSheet_UserSkill
         //실패 = fail
         //성공 = success
