@@ -360,21 +360,25 @@ namespace TeraDataExtractor
             {
                 Title = "Mystic";
             }
-            if (Title == "Engineer")
+            else if (Title == "Engineer")
             {
                 Title = "Gunner";
             }
-            if (Title == "Soulless")
+            else if (Title == "Soulless")
             {
                 Title = "Reaper";
             }
-            if (Title == "Fighter")
+            else if (Title == "Fighter")
             {
                 Title = "Brawler";
             }
-            if (Title == "Assassin")
+            else if (Title == "Assassin")
             {
                 Title = "Ninja";
+            }
+            else if (Title == "Glaiver")
+            {
+                Title = "Valkyrie";
             }
             return Title;
         }
