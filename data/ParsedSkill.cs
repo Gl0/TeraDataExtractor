@@ -21,6 +21,7 @@ namespace TeraDataExtractor
                 foreach (string mod in allmods)
                 {
                     if ((mod == " blast") && cut.Contains("priest")) continue;// fix holy shot=holy blast
+                    if ((mod == " normal") && cut.Contains("archer")) continue;// fix normal shot
                     if ((mod == " combo") && !cut.Contains("assassin")) continue;// combo postfix - only for ninja
                     if ((mod == " jin")&&cut.Contains("sorcerer"))
                     {
