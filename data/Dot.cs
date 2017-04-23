@@ -63,6 +63,7 @@ namespace TeraDataExtractor
         Absorb = 227, //or may be I've messed it with 281
         Resurrect = 229,
         Mark = 231, // Velik's Mark/Curse of Kaprima = increase received damage when marked
+        SkillCastSpeed = 235, //Increases Shield Barrage speed after 8 successful hits with Combo Attack.
         CastSpeed = 236,
         CrystalBind = 237,
         CCrystalBind = 249,

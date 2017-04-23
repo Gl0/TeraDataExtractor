@@ -15,7 +15,7 @@ namespace TeraDataExtractor
         private string OutFolder = Path.Combine(Program.OutputPath, "hotdot");
         private List<HotDot> Dotlist = new List<HotDot>();
         private string[] _glyph = new string[]{ "Glyph", "Символ", "の紋章", "문장", "紋章" };
-        private struct formatter { public string abnormalid; public string index; public string tick; public string change; public string time; };
+        public struct formatter { public string abnormalid; public string index; public string tick; public string change; public string time; };
 
         public DotExtractor(string region)
         {
@@ -50,7 +50,7 @@ namespace TeraDataExtractor
         {
             var Missing = "".Select(t => new { abnormalid = string.Empty, isShow = string.Empty, num = 0, redirected = string.Empty }).ToList();
             var Dots = "".Select(t => new { abnormalid = string.Empty, type = string.Empty, amount = string.Empty, method = string.Empty, time = string.Empty, tick = string.Empty, num = 0 }).ToList();
-            var interesting = new string[] {"1", "3", "4", "5", "6", "7", "8", "9", "18", "19","36", "20", "22", "24", "25", "27", "28", "30", "103", "104", "105", "108", "162", "167", "168", "203", "207", "210", "208", "221", "227", "229", "231", "236", "237" , "249", "255","260", "283", "316" };
+            var interesting = new string[] {"1", "3", "4", "5", "6", "7", "8", "9", "18", "19","36", "20", "22", "24", "25", "27", "28", "30", "103", "104", "105", "108", "162", "167", "168", "203", "207", "210", "208", "221", "227", "229", "231", "235", "236", "237" , "249", "255","260", "283", "316" };
             var notinteresting = new string[] {"8", "9", "18", "20", "27", "28", "103", "105", "108", "168", "221", "227" };
             foreach (
                 var file in
@@ -312,7 +312,7 @@ namespace TeraDataExtractor
 
         }
 
-        private string SubValues(string text, string abid, Dictionary<Tuple<string,string>,formatter> subs)
+        public string SubValues(string text, string abid, Dictionary<Tuple<string,string>,formatter> subs)
         {
             string result = text;
             formatter changer;
