@@ -15,7 +15,13 @@ namespace TeraDataExtractor
         perc = 3, // each tick  HP += MaxHP*HPChange; MP += MaxMP*MPChange
         setp = 4  // ?set % stat value
     }
-
+    public enum AbnormalityType
+    {
+        Debuff = 1,
+        DOT = 2,
+        Stun = 3,
+        Buff = 4
+    }
     public enum types
     {
         MaxHP = 1,
@@ -91,8 +97,9 @@ namespace TeraDataExtractor
         public string ItemName { get; set; }
         public string Tooltip { get; set; }
         public string IconName { get; set; }
+        public AbnormalityType AbType { get; set; }
 
-        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name,string itemid, string itemName,string tooltip,string iconName)
+        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name,string itemid, string itemName,string tooltip,string iconName,string abType)
         {
             AbnormalId = abnormalid;
             _type = (types) Enum.Parse(typeof(types),type);
@@ -107,10 +114,11 @@ namespace TeraDataExtractor
             ItemName = itemName;
             Tooltip = tooltip;
             IconName = iconName;
+            AbType = (AbnormalityType) Enum.Parse(typeof(AbnormalityType), abType);
         }
         public override string ToString()
         {
-            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("R", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant();
+            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("R", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant()+"\t"+AbType;
         }
     }
 }
