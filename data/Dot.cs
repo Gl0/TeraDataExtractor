@@ -65,7 +65,7 @@ namespace TeraDataExtractor
         StaminaDecay = 207,
         CDR = 208,
         Block = 210, //frontal block ? Not sure, the ability to use block, or blocking stance
-        HPLoss = 221, //loss hp at the and of debuff
+        HPLoss = 221, //loss hp at the end of debuff
         Absorb = 227, //or may be I've messed it with 281
         Resurrect = 229,
         Mark = 231, // Velik's Mark/Curse of Kaprima = increase received damage when marked
@@ -98,8 +98,9 @@ namespace TeraDataExtractor
         public string Tooltip { get; set; }
         public string IconName { get; set; }
         public AbnormalityType AbType { get; set; }
+        public bool IsBuff { get; set; }
 
-        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name,string itemid, string itemName,string tooltip,string iconName,string abType)
+        public HotDot(int abnormalid, string type, double amount, string method, int time, int tick, string name,string itemid, string itemName,string tooltip,string iconName,string abType, bool isBUff)
         {
             AbnormalId = abnormalid;
             _type = (types) Enum.Parse(typeof(types),type);
@@ -115,10 +116,11 @@ namespace TeraDataExtractor
             Tooltip = tooltip;
             IconName = iconName;
             AbType = (AbnormalityType) Enum.Parse(typeof(AbnormalityType), abType);
+            IsBuff =isBUff;
         }
         public override string ToString()
         {
-            return AbnormalId + "\t" + _type + "\t" + HPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + MPChange.ToString("R", CultureInfo.InvariantCulture) + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("R", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant()+"\t"+AbType;
+            return AbnormalId + "\t" + _type + "\t" + AbType + "\t" + IsBuff + "\t" + Method + "\t" + Time + "\t" + Tick + "\t" + Amount.ToString("R", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant();
         }
     }
 }
