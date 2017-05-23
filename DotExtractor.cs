@@ -43,7 +43,7 @@ namespace TeraDataExtractor
                              let name = item.Attribute("string").Value
                              let tooltip = item.Attribute("tooltip").Value
                              let iconName = icon.Attribute("iconName").Value
-                             select new HotDot(int.Parse(id), "Charm", 0, "0", 0, 0, name, "", "",tooltip, iconName, "Buff", true)).ToList();
+                             select new HotDot(int.Parse(id), "Charm", 0, "0", 0, 0, name, "", "",tooltip, iconName, "Buff", true, iconName)).ToList();
             Dotlist = Dotlist.Union(charmList).ToList();
         }
         private void RawExtract()
@@ -283,7 +283,7 @@ namespace TeraDataExtractor
 
                        where (iname!=null || iskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
-                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, long.Parse(dot.time), int.Parse(dot.tick), gskill==null?iname?.name??iskill.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,iname?.tooltip??"",gskill==null?iicon?.iconName??"":gskill.iconName,dot.property, bool.Parse(dot.isBuff))).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, long.Parse(dot.time), int.Parse(dot.tick), gskill==null?iname?.name??iskill.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,iname?.tooltip??"",gskill==null?iicon?.iconName??"":gskill.iconName,dot.property, bool.Parse(dot.isBuff), iicon?.iconName ?? "")).ToList();
 
             var Crests = "".Select(t => new { passiveid = string.Empty, skillname=string.Empty, skillId=string.Empty, iconName = string.Empty, name = string.Empty, glyphIcon=string.Empty,tooltip=string.Empty}).ToList();
             xml1 = XDocument.Load(RootFolder + _region + "/CrestIconData.xml");
