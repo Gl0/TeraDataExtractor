@@ -323,7 +323,7 @@ namespace TeraDataExtractor
         {
             string result = text;
             formatter changer;
-            for (int i = 2; i <= 5; i++)
+            for (int i = 2; i <= 7; i++)
             {
                 if (subs.TryGetValue(Tuple.Create(abid, "value"), out changer))
                     result = result.Replace("$time", long.Parse(changer.time) / 1000 + "s");
