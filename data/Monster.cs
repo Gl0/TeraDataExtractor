@@ -1,4 +1,7 @@
-﻿namespace TeraDataExtractor
+﻿using System;
+using System.Globalization;
+
+namespace TeraDataExtractor
 {
     public class Monster
     {
@@ -7,14 +10,15 @@
             Id = id;
             Name = name;
             IsBoss = isboss;
-            Hp = hp;
+            var dot = hp.IndexOf(".");
+            Hp = uint.Parse(string.IsNullOrWhiteSpace(hp)?"0":dot>0?hp.Substring(0,dot):hp);
         }
 
         public int Id { get; }
 
         public string Name { get; }
 
-        public string Hp { get; set; }
+        public uint Hp { get; set; }
         public bool IsBoss { get; set; }
     }
 }

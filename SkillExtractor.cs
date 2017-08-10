@@ -17,7 +17,7 @@ namespace TeraDataExtractor
         private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "skills");
         private List<Skill> skilllist;
-        private static Regex regex = new Regex("[a-zA-Z0-9а-яА-Я\\%\\#\\'\\[\\]\\(\\)_\\:\\;\\.\\,\\- ]*");
+        private static Regex regex = new Regex("^[a-zA-Z0-9а-яА-Я\\%\\#\\'\\[\\]\\(\\)_\\:\\;\\.\\,\\- ]+$");
 
         public SkillExtractor(string region, out List<Skill> list)
         {
