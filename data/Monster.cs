@@ -11,14 +11,14 @@ namespace TeraDataExtractor
             Name = name;
             IsBoss = isboss;
             var dot = hp.IndexOf(".");
-            Hp = uint.Parse(string.IsNullOrWhiteSpace(hp)?"0":dot>0?hp.Substring(0,dot):hp);
+            Hp = long.Parse(string.IsNullOrWhiteSpace(hp)?"0":dot>0?hp.Substring(0,dot):hp);
         }
 
         public int Id { get; }
 
         public string Name { get; }
 
-        public uint Hp { get; set; }
+        public long Hp { get; set; }
         public bool IsBoss { get; set; }
     }
 }
