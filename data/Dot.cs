@@ -131,8 +131,9 @@ namespace TeraDataExtractor
         public string EffectIcon { get; set; }
         public AbnormalityType AbType { get; set; }
         public bool IsBuff { get; set; }
+        public bool IsShow { get; set; }
 
-        public HotDot(int abnormalid, string type, double amount, string method, long time, int tick, string name,string itemid, string itemName,string tooltip,string iconName, string abType, bool isBUff, string effectIcon)
+        public HotDot(int abnormalid, string type, double amount, string method, long time, int tick, string name,string itemid, string itemName,string tooltip,string iconName, string abType, bool isBUff, bool isShow, string effectIcon)
         {
             AbnormalId = abnormalid;
             _type = (types) Enum.Parse(typeof(types),type);
@@ -150,10 +151,11 @@ namespace TeraDataExtractor
             EffectIcon = string.IsNullOrWhiteSpace(effectIcon) ? IconName : String.Intern(effectIcon);
             AbType = (AbnormalityType) Enum.Parse(typeof(AbnormalityType), abType);
             IsBuff =isBUff;
+            IsShow = isShow;
         }
         public override string ToString()
         {///temporary limit time to be max int to prevent parsing errors on not updated tera.core, then limit to max uint after update.
-            return AbnormalId + "\t" + _type + "\t" + AbType + "\t" + IsBuff + "\t" + Method + "\t" + (Time>int.MaxValue ? int.MaxValue : Time) + "\t" + Tick + "\t" + Amount.ToString("R", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant() + "\t" + EffectIcon.ToLowerInvariant();
+            return AbnormalId + "\t" + _type + "\t" + AbType + "\t" + IsBuff + "\t" + Method + "\t" + (Time>int.MaxValue ? int.MaxValue : Time) + "\t" + Tick + "\t" + Amount.ToString("R", CultureInfo.InvariantCulture) + "\t" + Name + "\t" + Itemid + "\t" + ItemName + "\t" + Tooltip + "\t" + IconName.ToLowerInvariant() + "\t" + EffectIcon.ToLowerInvariant()+ "\t"+ IsShow;
         }
     }
 }
