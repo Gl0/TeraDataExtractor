@@ -57,6 +57,7 @@ namespace TeraDataExtractor
         HPChange = 51,
         MPChange = 52,
         RageChange = 53,
+        Plague = 64, // contagion like redirect
         KnockDownChance = 103,
         DefPotion = 104, //or glyph: - incoming damage %
         IncreasedHeal = 105,
