@@ -167,7 +167,7 @@ namespace TeraDataExtractor
             //trying 2nd way:
             //create dictionary of all modifiers and cut them from internalname to get relation between publicname and internalname from known skill names
             //then parse this modifiers to fill hit numbers and chained properties
-            var ChainSkills = "".Select(t => new {PClass=string.Empty, skillid = string.Empty, p_skill = new ParsedSkill(string.Empty,string.Empty,string.Empty) }).ToList();
+            var ChainSkills = "".Select(t => new {PClass=string.Empty, skillid = string.Empty, p_skill = new ParsedSkill(string.Empty,string.Empty,string.Empty,string.Empty) }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
@@ -177,19 +177,23 @@ namespace TeraDataExtractor
                 var chaindata = (from temp in templates join skills in xml.Root.Elements("Skill") on temp.templateId equals skills.Attribute("templateId").Value into Pskills
                                  from Pskill in Pskills
                                     let PClass = temp.PClass
-                                    let skillid = Pskill.Attribute("id").Value  
-                                    let p_skill = new ParsedSkill(Pskill.Attribute("name").Value,skillid, (Pskill.Attribute("connectNextSkill")==null)?Pskill.Attribute("type").Value: Pskill.Attribute("type").Value+"_combo")
+                                    let skillid = Pskill.Attribute("id").Value
+                                    let cat = Pskill.Attribute("category").Value
+                                    let p_skill = new ParsedSkill(Pskill.Attribute("name").Value,skillid, (Pskill.Attribute("connectNextSkill")==null)?Pskill.Attribute("type").Value: Pskill.Attribute("type").Value+"_combo", cat)
                                  where PClass != "" && skillid != "" select new { PClass, skillid, p_skill });
                 ChainSkills = ChainSkills.Union(chaindata, (x, y) => (x.skillid == y.skillid)&&(x.PClass==y.PClass), x => (x.PClass+x.skillid).GetHashCode()).ToList();
             }
             var IntToPub = (from cs in ChainSkills join sl in skilllist on new { cs.PClass, cs.skillid } equals new { sl.PClass, skillid = sl.Id } into itps
-                            from itp in itps select new { cs.p_skill.BaseName, itp.Name,itp.IconName }).ToList();
+                            from itp in itps select new { cs.p_skill.BaseName, cs.p_skill.Category, itp.Name, itp.IconName }).ToList();
             IntToPub.Distinct((x,y)=>x.BaseName==y.BaseName,x=>x.BaseName.GetHashCode());
             var chainedlist = (from cs in ChainSkills
-                           join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
+                           from itp in IntToPub.Where(x=>x.BaseName==cs.p_skill.BaseName).DefaultIfEmpty(new {BaseName="",Category="",Name="",IconName=""})
+                           from itpc in IntToPub.Where(x => x.Category == cs.p_skill.Category).DefaultIfEmpty(new { BaseName = "", Category = "", Name = "", IconName = "" })
+                           //join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
                            join sl in skilllist on new { cs.skillid, cs.PClass } equals new { skillid = sl.Id, sl.PClass } into uskills
                            from uskill in uskills.DefaultIfEmpty(new Skill("","","","",""))
-                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name, cs.p_skill.Lvl) : uskill.Name,cs.p_skill.Chained,cs.p_skill.Detail,itp.IconName)).ToList();
+                               where itp.Name!="" || itpc.Name!="" || uskill.Name!=""
+                           select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name==""?itpc.Name:itp.Name, cs.p_skill.Lvl) : uskill.Name,cs.p_skill.Chained,cs.p_skill.Detail,uskill.IconName==""?(itp.IconName==""?itpc.IconName:itp.IconName):uskill.IconName)).ToList();
             skilllist = chainedlist.Union(skilllist).ToList();
         }
         private string cut_name(string internalname, out List<string> modifiers)

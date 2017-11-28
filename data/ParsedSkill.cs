@@ -8,12 +8,13 @@ namespace TeraDataExtractor
 {
     class ParsedSkill
     {
-        public ParsedSkill(string internalname,string skillid,string stype)
+        public ParsedSkill(string internalname,string skillid,string stype, string category)
         {
             SkillId = skillid;
             sType = stype;
+            var i = category.IndexOf(',');
+            Category = i==-1 ? category : category.Substring(0, category.IndexOf(','));
             string cut = internalname.ToLowerInvariant().Replace("_"," ");
-            allmods=allmods.ConvertAll(x => x.ToLowerInvariant());
             modifiers = new List<string> { };
             bool _cut = true;
             while (_cut) {
@@ -51,6 +52,8 @@ namespace TeraDataExtractor
             }
 
             BaseName = cut;
+            if (BaseName.Contains("assault")&&BaseName.Contains("berserk")) {BaseName=BaseName+category;}//fix berserk
+
             if (modifiers.Contains(" continuous") || modifiers.Contains(" large") || modifiers.Contains(" chain") || modifiers.Contains(" short") || modifiers.Contains(" shortairreaction"))
                 { Chained = "True"; } else { Chained = "False"; }
 
@@ -140,24 +143,29 @@ namespace TeraDataExtractor
         public string Chained { get; }
         public string SkillId { get; }
         public string Lvl { get; }
+        public string Category { get; }
         private string sType { get; }
 
         public string Detail { get; } //hit number or other comment, such as "Explosion"
 
-        private List<string> allmods = new List<string>{" "," Start","00","01","02","03","04","05","06","07","08","09","10"," Combo", " normal",
+        private static List<string> allmods = new List<string>{" "," Start","00","01","02","03","04","05","06","07","08","09","10"," 12"," 34"," 56"," 78"," 9"," Combo", " normal",
             " Continuous"," Cast"," large"," Projectile"," Projectile2"," Projectile3"," RealTargeting"," Flying"," Explosion"," ExplosionforBot",
             " Attack Aggro", " Attack Defence", " PositionSwap"," Activate"," Invoke"," LockOn"," Charge"," Moving"," Shot"," OverShot"," ON"," OFF"," Attack"," Single",
             " Chain"," Connect"," Long"," Short"," Use"," FURY"," Evade"," False"," True"," Drain"," Cancel"," ShortAirReaction",
             " Change"," immediateCancel"," rearCancel"," Connector"," SuperArmor"," RangeTarget"," Loop"," forOnlyEffect"," passiveOn",
-            " forSummon"," forDamage", " forBot", " Side", " Fail", " Blast", " Return", " Stopping", " Jin", " For Distortion", " 실패", " 성공"};
+            " forSummon"," forDamage", " forBot", " Side", " Fail", " Blast", " Return", " Stopping", " Jin", " For Distortion", " 실패", " 성공", " End",
+            " cooltime controller", " CoolTimeController"}.ConvertAll(x => x.ToLowerInvariant());
 
         private static Dictionary<string, string> levels = new Dictionary<string, string>
         { {" lv01"," I"},{" lv02"," II"},{" lv03"," III"},{" lv04"," IV"},{" lv05"," V"},{" lv06"," VI"},{" lv07"," VII"},{" lv08"," VIII"},{" lv09"," IX"},{" lv10"," X"},
           {" lv11"," XI"},{" lv12"," XII"},{" lv13"," XIII"},{" lv14"," XIV"},{" lv15"," XV"},{" lv16"," XVI"},{" lv17"," XVII"},{" lv18"," XVIII"},{" lv19"," XIX"},{" lv20"," XX"}};
 
         //Attack_Aggro Attack_Defence = warrior connected skill depends on stance
+        //12 34 56 78 9 - new brawler chains
+        //Assault_attack = bugged berserk skills have same name
         //passiveOn - keen hb-7
         //PREFIX 이펙트불필요 = "No effects needed" - glaiver skills, not sure what it's needed for, but now ignoring, since all such skills have explicit name in StrSheet_UserSkill
+        //End = new awakening berserk rage
         //실패 = fail
         //성공 = success
         //01_Start = start chained multihit skills (connect = connectNextSkill=id)
