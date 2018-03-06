@@ -11,7 +11,7 @@ namespace TeraDataExtractor
             Gender = gender;
             PClass = pclass;
             Name = name;
-            IconName = PClass == "Common"&&Race=="Common" ? "" : iconName;
+            IconName = iconName;
         }
         public Skill(string id, string race, string gender, string pclass, string name, string chained, string detail, string iconName)
         {

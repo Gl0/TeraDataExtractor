@@ -204,13 +204,19 @@ namespace TeraDataExtractor
 
         private void item_Skills()
         {
-            var ItemSkills = "".Select(t => new { skillid = string.Empty, nameid = string.Empty }).ToList();
+            var ItemSkills = "".Select(t => new { skillid = string.Empty, nameid = string.Empty, itemicon = string.Empty }).ToList();
             foreach (
                 var file in
                     Directory.EnumerateFiles(RootFolder + _region + "/ItemData/"))
             {
                 var xml = XDocument.Load(file);
-                var itemdata = (from item in xml.Root.Elements("Item") let comb=(item.Attribute("category")== null)?"no": item.Attribute("category").Value let skillid = (item.Attribute("linkSkillId")==null)?"0":item.Attribute("linkSkillId").Value let nameid = item.Attribute("id").Value where ((comb=="combat")||(comb=="brooch") || (comb == "charm") || (comb == "magical")) && skillid!="0" && skillid != "" && nameid != "" select new { skillid, nameid });
+                var itemdata = (from item in xml.Root.Elements("Item")
+                                let comb=(item.Attribute("category")== null)?"no": item.Attribute("category").Value
+                                let skillid = (item.Attribute("linkSkillId")==null)?"0":item.Attribute("linkSkillId").Value
+                                let nameid = item.Attribute("id").Value
+                                let itemicon = item.Attribute("icon")?.Value??""
+                                where ((comb=="combat")||(comb=="brooch") || (comb == "charm") || (comb == "magical")) && skillid!="0" && skillid != "" && nameid != ""
+                                select new { skillid, nameid, itemicon });
                 // filter only combat items, we don't need box openings etc.
                 ItemSkills.AddRange(itemdata);
             }
@@ -223,7 +229,7 @@ namespace TeraDataExtractor
                 var namedata = (from item in xml.Root.Elements("String") let nameid = item.Attribute("id").Value let name = item.Attribute("string").Value where nameid != "" && name != "" && name!= "[TBU]"&& name!= "TBU_new_in_V24" select new { nameid, name }).ToList();
                 ItemNames.AddRange(namedata);
             }
-            var Items = (from item in ItemSkills join nam in ItemNames on item.nameid equals nam.nameid orderby item.skillid where nam.name!="" select new Skill(item.skillid,"Common","Common","Common", nam.name)).ToList();
+            var Items = (from item in ItemSkills join nam in ItemNames on item.nameid equals nam.nameid orderby item.skillid where nam.name!="" select new Skill(item.skillid,"Common","Common","Common", nam.name, item.itemicon)).ToList();
             if (_region=="RU") // shortest names only for RU region since other have non localized names or less descriptive names.
                 Items.Sort((x, y) => CompareItems(x.Id,y.Id,x.Name,y.Name));
             Items=Items.Distinct((x, y) => x.Id == y.Id, x => x.Id.GetHashCode()).ToList();
