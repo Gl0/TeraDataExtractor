@@ -11,7 +11,6 @@ namespace TeraDataExtractor
     public class DotExtractor
     {
         private readonly string _region;
-        private const string RootFolder = "j:/c/Extract/";
         private string OutFolder = Path.Combine(Program.OutputPath, "hotdot");
         private List<HotDot> Dotlist = new List<HotDot>();
         private string[] _glyph = new string[]{ "Glyph", "Символ", "の紋章", "문장", "紋章" };
@@ -35,8 +34,8 @@ namespace TeraDataExtractor
 
         private void AddCharms()
         {
-            var xml = XDocument.Load(RootFolder + _region + "/StrSheet_Charm.xml");
-            var xml1 = XDocument.Load(RootFolder + _region + "/CharmIconData.xml");
+            var xml = XDocument.Load(Program.SourcePath + _region + "/StrSheet_Charm.xml");
+            var xml1 = XDocument.Load(Program.SourcePath + _region + "/CharmIconData.xml");
             var charmList = (from item in xml.Root.Elements("String")
                              join icon in xml1.Root.Elements("Icon") on item.Attribute("id").Value equals icon.Attribute("charmId").Value
                              let id = item.Attribute("id").Value
@@ -56,7 +55,7 @@ namespace TeraDataExtractor
             var redirects_to_follow = new string[] { "64", "161", "182", "223", "248", "252", "264", "271" };
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/Abnormality/"))
             {
                 var xml = XDocument.Load(file);
                 var Dotdata = (from item in xml.Root.Elements("Abnormal")
@@ -125,7 +124,7 @@ namespace TeraDataExtractor
             var Names = "".Select(t => new { abnormalid = string.Empty, name = string.Empty, tooltip=string.Empty }).ToList();
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Abnormality/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/StrSheet_Abnormality/"))
             {
                 var xml = XDocument.Load(file);
                 var Namedata = (from item in xml.Root.Elements("String")
@@ -151,7 +150,7 @@ namespace TeraDataExtractor
             var Icons = "".Select(t => new { abnormalid = string.Empty, iconName = string.Empty }).ToList();
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/AbnormalityIconData/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/AbnormalityIconData/"))
             {
                 var xml = XDocument.Load(file);
                 var IconData = (from item in xml.Root.Elements("Icon")
@@ -174,7 +173,7 @@ namespace TeraDataExtractor
             var SkillToName = "".Select(t => new { skillid = string.Empty, nameid = string.Empty }).ToList();
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/ItemData/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/ItemData/"))
             {
                 var xml = XDocument.Load(file);
                 var itemdata = (from item in xml.Root.Elements("Item") let comb = (item.Attribute("category") == null) ? "no" : item.Attribute("category").Value let skillid = (item.Attribute("linkSkillId") == null) ? "0" : item.Attribute("linkSkillId").Value let nameid = item.Attribute("id").Value where ((comb == "combat") || (comb == "brooch") || (comb == "charm") || (comb == "magical")) && skillid != "0" && skillid != "" && nameid != "" select new { skillid, nameid });
@@ -184,7 +183,7 @@ namespace TeraDataExtractor
             var ItemNames = "".Select(t => new { nameid = string.Empty, name = string.Empty }).ToList();
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Item/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/StrSheet_Item/"))
             {
                 var xml = XDocument.Load(file);
                 var namedata = (from item in xml.Root.Elements("String") let nameid = item.Attribute("id").Value let name = item.Attribute("string").Value where nameid != "" && name != "" && name != "[TBU]" && name != "TBU_new_in_V24" select new { nameid, name }).ToList();
@@ -196,7 +195,7 @@ namespace TeraDataExtractor
             var ItemSkills = "".Select(t => new { skillid = string.Empty, abid=string.Empty, template = string.Empty }).ToList();
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/SkillData/"))
             {
                 var xml = XDocument.Load(file);
                 if (xml.Root.Attribute("huntingZoneId")?.Value != "0") continue;
@@ -219,7 +218,7 @@ namespace TeraDataExtractor
             List<Skill> skilllist;
             new SkillExtractor(_region, out skilllist);
             if (_region!="KR") skilllist.Where(x=>x.Name.Contains(":")).ToList().ForEach(x=>x.Name=x.Name.Replace(":",""));
-            var xml1 = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
+            var xml1 = XDocument.Load(Program.SourcePath + _region + "/LobbyShape.xml");
             var templates = (from races in xml1.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = SkillExtractor.ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
             //assume skills for different races and genders are the same per class 
             templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
@@ -236,8 +235,8 @@ namespace TeraDataExtractor
                 Passives.Add(new { abnormalid = x1.Key, name = x1.Count()>1?SkillExtractor.RemoveLvl(x1.First().name): x1.First().name, iconName = x1.First().iconName });
             }
 
-            xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
-            var xml2 = XDocument.Load(RootFolder + _region + "/CrestData.xml");
+            xml1 = XDocument.Load(Program.SourcePath + _region + "/StrSheet_Crest.xml");
+            var xml2 = XDocument.Load(Program.SourcePath + _region + "/CrestData.xml");
             var Glyphs = (from item in xml1.Root.Elements("String") join crestItem in xml2.Root.Elements("CrestItem") on item.Attribute("id").Value equals crestItem.Attribute("id").Value
                           let passiveid = item.Attribute("id").Value
                           let name = item.Attribute("name").Value
@@ -258,7 +257,7 @@ namespace TeraDataExtractor
             //dont parse CrestData.xml for passiveid<=>crestid, since they are identical now
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/Passivity/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/Passivity/"))
             {
                 var xml = XDocument.Load(file);
                 var PassiveData = (from item in xml.Root.Elements("Passive")
@@ -287,10 +286,10 @@ namespace TeraDataExtractor
                        select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, long.Parse(dot.time), int.Parse(dot.tick), gskill==null?iname?.name??iskill.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,iname?.tooltip??"",gskill==null?iicon?.iconName??"":gskill.iconName,dot.property, bool.Parse(dot.isBuff), dot.isShow!="False", iicon?.iconName ?? "")).ToList();
 
             var Crests = "".Select(t => new { passiveid = string.Empty, skillname=string.Empty, skillId=string.Empty, iconName = string.Empty, name = string.Empty, glyphIcon=string.Empty,tooltip=string.Empty}).ToList();
-            xml1 = XDocument.Load(RootFolder + _region + "/CrestIconData.xml");
+            xml1 = XDocument.Load(Program.SourcePath + _region + "/CrestIconData.xml");
             foreach (
                 var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/Passivity/"))
+                    Directory.EnumerateFiles(Program.SourcePath + _region + "/Passivity/"))
             {
                 var xml = XDocument.Load(file);
                 var CrestsData = (from item in xml.Root.Elements("Passive")

@@ -7,7 +7,7 @@ namespace TeraDataExtractor
 {
     public class Program
     {
-        public static string SourcePath = "j:/c/Extract/";
+        public static string SourcePath = @"D:\XML\";
         public static string OutputPath = "data";
         public static string IconFolder = Path.Combine(OutputPath, "icons");
         public static List<string> Copied = new List<string>();
@@ -52,6 +52,15 @@ namespace TeraDataExtractor
             new Quests("TW");
             new Quests("JP");
             new Quests("KR");
+
+            new ItemExtractor("RU");
+            new ItemExtractor("EU-EN");
+            new ItemExtractor("EU-FR");
+            new ItemExtractor("EU-GER");
+            new ItemExtractor("NA");
+            new ItemExtractor("TW");
+            new ItemExtractor("JP");
+            new ItemExtractor("KR");
 
             PackIcons();
         }
