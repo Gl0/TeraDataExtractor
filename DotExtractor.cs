@@ -11,7 +11,7 @@ namespace TeraDataExtractor
     public class DotExtractor
     {
         private readonly string _region;
-        private const string RootFolder = "j:/c/Extract/";
+        private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "hotdot");
         private List<HotDot> Dotlist = new List<HotDot>();
         private string[] _glyph = new string[]{ "Glyph", "Символ", "の紋章", "문장", "紋章" };
