@@ -133,7 +133,7 @@ namespace TeraDataExtractor
                     let coolTime = UInt32.Parse(item.Attribute("coolTime")?.Value ?? "0")
                     let icon = item.Attribute("icon")?.Value ?? ""
                     select new { id, rareGrade, str.name, linkEquipmentExpId, coolTime, icon }).ToList();
-                items.Union(itemList, (x, y) => x.id == y.id, x => x.id.GetHashCode()).ToList();
+                items=items.Union(itemList, (x, y) => x.id == y.id, x => x.id.GetHashCode()).ToList();
             }
             //File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"), items.Select(x => $"{x.id}\t{x.rareGrade}\t{x.name}\t{x.linkEquipmentExpId}\t{x.coolTime}\t{x.icon.ToLowerInvariant()}"));
             File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"),items.Select(x=>new StringBuilder().Append(x.id).Append("\t")
