@@ -38,7 +38,7 @@ namespace TeraDataExtractor
         StunResist = 16, //something strange, internal itemname sleep_protect, but user string is stun resist, russian user string is "control effect resist"
         AllResist = 18,
         CritPower = 19,
-        CritPower1 = 36,
+        CritPower1 = 36, //PvE
         Aggro = 20,
         NoMPDecay = 21, //slayer
         Attack = 22, //total damage modificator
@@ -48,8 +48,8 @@ namespace TeraDataExtractor
         CraftTime=26,
         OutOfCombatMovSpd = 27,
         HPDrain=28, //drain hp on attack
-        //28 = Something comming with MovSpd debuff skills, fxp 32% MovSpd debuff from Lockdown Blow IV, give also 12% of this kind
-        //29 = something strange when using Lethal Strike, cdr
+        //28 = Something comming with MovSpd debuff skills, fxp 32% MovSpd debuff from Lockdown Blow IV, give also 12% of this kind, skill distance
+        //29 = something strange when using Lethal Strike, cdr, charge
         Stamina = 30,
         Gathering = 31,
         RidingSpeed = 34,
@@ -76,7 +76,7 @@ namespace TeraDataExtractor
         CDR = 208,
         Block = 210, //frontal block ? Not sure, the ability to use block, or blocking stance
         Stun = 211,
-        Stun1 = 61,
+        Stun1 = 61,//stagger
         Chaos = 213, //movement keys messed up
         AllowAggro = 216, //no aggro
         HPLoss = 221, //loss hp at the end of debuff
