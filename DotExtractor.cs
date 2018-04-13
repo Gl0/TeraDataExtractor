@@ -134,7 +134,7 @@ namespace TeraDataExtractor
                                 let tooltip = item.Attribute("tooltip") == null ? "" : SubValues(item.Attribute("tooltip").Value
 //                                    .Replace("$H_W_GOOD","").Replace("H_W_GOOD", "").Replace("$COLOR_END","").Replace("$H_W_BAD","").Replace("$H_W_Bad","").Replace("H_W_BAD","").Replace("$BR"," ").Replace("<br>", " ")
                                     .Replace("\n","$BR").Replace("\r", "$BR "), abnormalid,subs)
-                                where abnormalid != "" && name!=""// GF are too lazy and leave BTS strings in used buffs && !name.Contains("BTS") && !tooltip.Contains("BTS")
+                                where abnormalid != "" && name!="" && !name.Contains("BTS") && !tooltip.Contains("BTS")
                                 select new { abnormalid, name, tooltip }).ToList();
                 Names = Names.Union(Namedata, (x, y) => x.abnormalid == y.abnormalid, x => x.abnormalid.GetHashCode()).ToList();
             }

@@ -66,6 +66,36 @@ namespace TeraDataExtractor
         {
             var xml = XDocument.Load(RootFolder + _region + "/ContinentData.xml");
             var contdata = (from cont in xml.Root.Elements("Continent") let battle = (cont.Attribute("channelType")==null)?false:cont.Attribute("channelType").Value== "battleField" let idcont = cont.Attribute("id").Value from hunting in cont.Elements("HuntingZone") let idzone = hunting.Attribute("id").Value where idcont != "" && idzone != "" select new { idcont, idzone, battle}).ToList();
+
+            xml = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
+            var templates = (from races in xml.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = SkillExtractor.ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
+            //assume skills for different races and genders are the same per class 
+            templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
+            var summons = "".Select(t => new { id = string.Empty, skillId = string.Empty, PClass= string.Empty }).ToList();
+            foreach (
+                var file in
+                Directory.EnumerateFiles(RootFolder + _region + "/SkillData/"))
+            {
+                xml = XDocument.Load(file);
+                if (xml.Root.Attribute("huntingZoneId")?.Value != "0") continue;
+                var summonData = (from temp in templates join skills in xml.Root.Elements("Skill") on temp.templateId equals skills.Attribute("templateId").Value into Pskills
+                    from Pskill in Pskills
+                    let PClass = temp.PClass
+                    let skillId = Pskill.Attribute("id").Value
+                    let id= Pskill.Descendants("SummonNpc").FirstOrDefault()?.Attribute("templateId")?.Value??""
+                    where skillId != "" && PClass != "" && id != "" select new { id, skillId, PClass });
+                summons = summons.Union(summonData,(x,y)=>x.PClass==y.PClass && x.id==y.id,x=>(x.PClass+x.id).GetHashCode()).ToList();
+            }
+
+            List<Skill> skilllist;
+            new SkillExtractor(_region, out skilllist);
+
+            var summonNames = (from item in skilllist join summon in summons on new {skillId=item.Id , PClass = item.PClass} equals new {summon.skillId, summon.PClass} into results
+                                 from res in results
+                                 let name = item.Name
+                    where res.id != "" && name != ""
+                    select new {idzone="1023", identity=res.id, name}).ToList();
+
             xml = XDocument.Load(RootFolder + _region + "/StrSheet_Region.xml");
             var regdata = (from str in xml.Root.Elements("String") let idname = str.Attribute("id").Value let regname = str.Attribute("string").Value where idname != "" && regname != "" select new { idname, regname }).ToList();
 
@@ -105,7 +135,15 @@ namespace TeraDataExtractor
             //    }
             //}
             xml = XDocument.Load(RootFolder + _region + "/StrSheet_Creature.xml");
-            var mobdata = (from hunting in xml.Root.Elements("HuntingZone") let idzone = hunting.Attribute("id").Value from entity in hunting.Elements("String") let identity = entity.Attribute("templateId").Value let name = entity.Attribute("name").Value where name != "" && identity != "" && idzone != "" select new { idzone, identity, name }).ToList();
+            var mobdata = (from hunting in xml.Root.Elements("HuntingZone")
+                           let idzone = hunting.Attribute("id").Value
+                           from entity in hunting.Elements("String") join summon in summonNames on new {idzone, identity=entity.Attribute("templateId").Value } equals new {summon.idzone, summon.identity } into results
+                                from res in results.DefaultIfEmpty()
+                                let identity = entity.Attribute("templateId").Value
+                                let name = string.IsNullOrWhiteSpace(res?.name)?entity.Attribute("name").Value : res.name
+                           where name != "" && identity != "" && idzone != "" select new { idzone, identity, name }).ToList();
+            mobdata = mobdata.Union(summonNames).ToList();
+
             var mobprop = "".Select(t => new { idzone = string.Empty, id=string.Empty,boss=false,maxHP=string.Empty,size=string.Empty }).ToList();
             foreach (
                 var file in
