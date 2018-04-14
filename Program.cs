@@ -7,7 +7,7 @@ namespace TeraDataExtractor
 {
     public class Program
     {
-        public static string SourcePath = "j:/c/Extract/";
+        public static string SourcePath = @"D:\Vincenzo\Downloads\TeraDataCenterTools-0.2";
         public static string OutputPath = "data";
         public static string IconFolder = Path.Combine(OutputPath, "icons");
         public static List<string> Copied = new List<string>();
@@ -52,6 +52,98 @@ namespace TeraDataExtractor
             new Quests("TW");
             new Quests("JP");
             new Quests("KR");
+
+            #region TCC stuff
+            new AccountBenefitExtractor("RU");
+            new AccountBenefitExtractor("EU-EN");
+            new AccountBenefitExtractor("EU-FR");
+            new AccountBenefitExtractor("EU-GER");
+            new AccountBenefitExtractor("NA");
+            new AccountBenefitExtractor("TW");
+            new AccountBenefitExtractor("JP");
+            new AccountBenefitExtractor("KR");
+
+            new NewWorldMapDataExtractor("RU");
+            new NewWorldMapDataExtractor("EU-EN");
+            new NewWorldMapDataExtractor("EU-FR");
+            new NewWorldMapDataExtractor("EU-GER");
+            new NewWorldMapDataExtractor("NA");
+            new NewWorldMapDataExtractor("TW");
+            new NewWorldMapDataExtractor("JP");
+            new NewWorldMapDataExtractor("KR");
+
+            new EquipmentExpDataExtractor("RU");
+            new EquipmentExpDataExtractor("EU-EN");
+            new EquipmentExpDataExtractor("EU-FR");
+            new EquipmentExpDataExtractor("EU-GER");
+            new EquipmentExpDataExtractor("NA");
+            new EquipmentExpDataExtractor("TW");
+            new EquipmentExpDataExtractor("JP");
+            new EquipmentExpDataExtractor("KR");
+
+            new AchievementGradeInfoExtractor("RU");
+            new AchievementGradeInfoExtractor("EU-EN");
+            new AchievementGradeInfoExtractor("EU-FR");
+            new AchievementGradeInfoExtractor("EU-GER");
+            new AchievementGradeInfoExtractor("NA");
+            new AchievementGradeInfoExtractor("TW");
+            new AchievementGradeInfoExtractor("JP");
+            new AchievementGradeInfoExtractor("KR");
+
+            new AchievementsExtractor("RU");
+            new AchievementsExtractor("EU-EN");
+            new AchievementsExtractor("EU-FR");
+            new AchievementsExtractor("EU-GER");
+            new AchievementsExtractor("NA");
+            new AchievementsExtractor("TW");
+            new AchievementsExtractor("JP");
+            new AchievementsExtractor("KR");
+
+            new DungeonsExtractor("RU");
+            new DungeonsExtractor("EU-EN");
+            new DungeonsExtractor("EU-FR");
+            new DungeonsExtractor("EU-GER");
+            new DungeonsExtractor("NA");
+            new DungeonsExtractor("TW");
+            new DungeonsExtractor("JP");
+            new DungeonsExtractor("KR");
+
+            new QuestExtractor("RU");
+            new QuestExtractor("EU-EN");
+            new QuestExtractor("EU-FR");
+            new QuestExtractor("EU-GER");
+            new QuestExtractor("NA");
+            new QuestExtractor("TW");
+            new QuestExtractor("JP");
+            new QuestExtractor("KR");
+
+            new RegionExtractor("RU");
+            new RegionExtractor("EU-EN");
+            new RegionExtractor("EU-FR");
+            new RegionExtractor("EU-GER");
+            new RegionExtractor("NA");
+            new RegionExtractor("TW");
+            new RegionExtractor("JP");
+            new RegionExtractor("KR");
+
+            new SocialExtractor("RU");
+            new SocialExtractor("EU-EN");
+            new SocialExtractor("EU-FR");
+            new SocialExtractor("EU-GER");
+            new SocialExtractor("NA");
+            new SocialExtractor("TW");
+            new SocialExtractor("JP");
+            new SocialExtractor("KR");
+
+            new SystemMessagesExtractor("RU");
+            new SystemMessagesExtractor("EU-EN");
+            new SystemMessagesExtractor("EU-FR");
+            new SystemMessagesExtractor("EU-GER");
+            new SystemMessagesExtractor("NA");
+            new SystemMessagesExtractor("TW");
+            new SystemMessagesExtractor("JP");
+            new SystemMessagesExtractor("KR");
+            #endregion
 
             PackIcons();
         }
