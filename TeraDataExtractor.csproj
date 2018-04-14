@@ -49,6 +49,7 @@
     <Compile Include="AchievementsExtractor.cs" />
     <Compile Include="CharmExtractor.cs" />
     <Compile Include="data\Dot.cs" />
+    <Compile Include="data\GuildQuest.cs" />
     <Compile Include="data\MapElement.cs" />
     <Compile Include="DotExtractor.cs" />
     <Compile Include="data\ParsedSkill.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="DungeonDefExtractor.cs" />
     <Compile Include="DungeonExtractor.cs" />
     <Compile Include="EquipmentExpDataExtractor.cs" />
+    <Compile Include="GuildQuestExtractor.cs" />
     <Compile Include="MonsterExtractor.cs" />
     <Compile Include="NewWorldMapDataExtractor.cs" />
     <Compile Include="Program.cs" />

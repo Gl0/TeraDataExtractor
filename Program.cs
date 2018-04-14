@@ -7,7 +7,7 @@ namespace TeraDataExtractor
 {
     public class Program
     {
-        public static string SourcePath = @"D:\Vincenzo\Downloads\TeraDataCenterTools-0.2";
+        public static string SourcePath = "j:/c/Extract/";
         public static string OutputPath = "data";
         public static string IconFolder = Path.Combine(OutputPath, "icons");
         public static List<string> Copied = new List<string>();
@@ -16,6 +16,7 @@ namespace TeraDataExtractor
         {
             Directory.CreateDirectory(OutputPath);//create output directory if not exist
             Directory.CreateDirectory(IconFolder);//create output directory if not exist
+
 
             new MonsterExtractor("RU");
             new MonsterExtractor("EU-EN");
@@ -53,7 +54,9 @@ namespace TeraDataExtractor
             new Quests("JP");
             new Quests("KR");
 
-            #region TCC stuff
+            PackIcons();
+
+            #region TCC stuff --------------------------------------------------------------------------------------------
             new AccountBenefitExtractor("RU");
             new AccountBenefitExtractor("EU-EN");
             new AccountBenefitExtractor("EU-FR");
@@ -143,9 +146,17 @@ namespace TeraDataExtractor
             new SystemMessagesExtractor("TW");
             new SystemMessagesExtractor("JP");
             new SystemMessagesExtractor("KR");
-            #endregion
 
-            PackIcons();
+            new GuildQuestsExtractor("RU");
+            new GuildQuestsExtractor("EU-EN");
+            new GuildQuestsExtractor("EU-FR");
+            new GuildQuestsExtractor("EU-GER");
+            new GuildQuestsExtractor("NA");
+            new GuildQuestsExtractor("TW");
+            new GuildQuestsExtractor("JP");
+            new GuildQuestsExtractor("KR");
+
+            #endregion
         }
         public static void Copytexture(string name,int id=0)
         {
