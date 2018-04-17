@@ -48,7 +48,7 @@ namespace TeraDataExtractor
                     var eCount = Regex.Matches(x, "/font>").Count;
                     if (eCount != sCount)
                     {
-                        Console.WriteLine(id);
+                        Console.WriteLine(region + "   "+id);
                     }
                 }
 
