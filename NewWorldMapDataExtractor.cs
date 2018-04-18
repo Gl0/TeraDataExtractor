@@ -45,8 +45,12 @@ namespace TeraDataExtractor
                         var sId = Convert.ToUInt32(sectionEl.Attribute("id").Value);
                         var sNameId = Convert.ToUInt32(sectionEl.Attribute("nameId").Value);
                         var sMapId = sectionEl.Attribute("mapId")?.Value??"";
-                        var section = new MapElement(sId, sNameId, sMapId);
-
+                        var dg = sectionEl.Attribute("type") != null && sectionEl.Attribute("type").Value == "dungeon" ? true : false;
+                        var cId = sectionEl.Descendants().Any() ?
+                            uint.Parse(sectionEl.Descendants().FirstOrDefault(x => x.Name == "Npc").Attribute("continentId").Value) :
+                            0;
+                        var section = new MapElement(sId, sNameId, sMapId, dg);
+                        if (guard.ContinentId == 0) guard.ContinentId = cId;
                         guard.Children.Add(section);
                     });
 
@@ -65,14 +69,15 @@ namespace TeraDataExtractor
                 w.Children.ForEach(g =>
                 {
                     var gEl = new XElement("Guard", new XAttribute("id", g.Id),
-                                                    new XAttribute("mapId", g.MapId),
-                                                    new XAttribute("nameId", g.NameId));
-                    g.Children.ForEach(s =>
+                        new XAttribute("mapId", g.MapId),
+                        new XAttribute("nameId", g.NameId),
+                        new XAttribute("continentId", g.ContinentId)); g.Children.ForEach(s =>
                     {
 
                         var sEl = new XElement("Section", new XAttribute("id", s.Id),
                                                         new XAttribute("mapId", s.MapId),
                                                         new XAttribute("nameId", s.NameId));
+                        if (s.IsDungeon) sEl.Add(new XAttribute("type", "dungeon"));
                         gEl.Add(sEl);
                     });
                     wEl.Add(gEl);
