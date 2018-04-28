@@ -71,7 +71,8 @@ namespace TeraDataExtractor
                                let num = item.Elements("AbnormalityEffect").TakeWhile(x => x != eff).Count() + 1
                                let amount = eff.Attribute("value") == null ? "" : eff.Attribute("value").Value
                                let tick = eff.Attribute("tickInterval") == null ? "0" : eff.Attribute("tickInterval").Value
-                               where (((type == "51" || type == "52") && tick != "0") || (!redirects_to_ignore.Contains(type) && (isShow != "False" || abnormalid=="201" || abnormalid == "202" || abnormalid== "10152050"))) && amount != "" && method != "" 
+                               where (((type == "51" || type == "52") && tick != "0") || (!redirects_to_ignore.Contains(type))) && amount != "" && method != ""
+//                    where (((type == "51" || type == "52") && tick != "0") || (!redirects_to_ignore.Contains(type) && (isShow != "False" || abnormalid == "201" || abnormalid == "202" || abnormalid == "10152050"))) && amount != "" && method != ""
                                select new { abnormalid, type, amount, method, time, tick, num, property, isBuff, isShow }).ToList();                                  //// 201 202 - marked as not shown, but needed
                 Dots = Dots.Union(Dotdata).ToList();
                 var parser = (from item in xml.Root.Elements("Abnormal")
