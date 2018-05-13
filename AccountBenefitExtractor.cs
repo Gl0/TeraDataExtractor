@@ -36,7 +36,7 @@ namespace TeraDataExtractor
             {
                 if (!string.IsNullOrEmpty(b.Value))
                 {
-                    var line = b.Key + "\t" + b.Value;
+                    var line = b.Key + "\t" + b.Value.Replace("\n", "&#xA;");
                     lines.Add(line);
                 }
             });
