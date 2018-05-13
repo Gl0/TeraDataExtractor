@@ -93,7 +93,7 @@ namespace TeraDataExtractor
                 sb.Append(quest.Value.Title);
                 //sb.Append('\t');
                 //sb.Append(quest.Value.ZoneId);
-                lines.Add(sb.ToString());
+                lines.Add(sb.ToString().Replace("\n", "&#xA;"));
             }
             File.WriteAllLines(Path.Combine(OutFolder,$"guild_quests-{_region}.tsv"), lines);
         }

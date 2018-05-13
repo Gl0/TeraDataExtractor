@@ -30,7 +30,7 @@ namespace TeraDataExtractor
                     var id = uint.Parse(item.Attribute("id").Value);
                     var name = item.Attribute("string").Value;
 
-                    if(!string.IsNullOrEmpty(name)) lines.Add(id + "\t" + name);
+                    if(!string.IsNullOrEmpty(name)) lines.Add(id + "\t" + name.Replace("\n", "&#xA;"));
                 }
             });
             File.WriteAllLines(Path.Combine(OutFolder, $"achievements-{region}.tsv"), lines);

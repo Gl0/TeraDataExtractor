@@ -31,7 +31,7 @@ namespace TeraDataExtractor
                 var name = item.Attribute("string").Value;
                 if (id > 105 || id < 101) continue;
 
-                lines.Add(id + "\t" + name);
+                lines.Add(id + "\t" + name.Replace("\n", "&#xA;"));
             }
             File.WriteAllLines(Path.Combine(OutFolder, $"achi_grade-{_region}.tsv"), lines);
         }

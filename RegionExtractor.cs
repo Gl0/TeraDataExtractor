@@ -26,7 +26,7 @@ namespace TeraDataExtractor
             {
                 var id = s.Attribute("id").Value;
                 var name = s.Attribute("string").Value;
-                lines.Add(id + "\t" + name);
+                lines.Add(id + "\t" + name.Replace("\n", "&#xA;"));
             });
             File.WriteAllLines(Path.Combine(OutFolder, $"regions-{region}.tsv"), lines);
 

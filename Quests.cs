@@ -91,9 +91,11 @@ namespace TeraDataExtractor
                     let requiredGender = item.Attribute("requiredGender")?.Value ?? ""
                     let requiredRace = item.Attribute("requiredRace")?.Value ?? ""
                     let icon = item.Attribute("icon")?.Value ?? ""
- //                               where str.toolTip.Contains("$value")
-                    //                            where (category == "fiber" || category == "metal" || category == "alchemy" || category == "") && name != ""
-                    select new {id, str.name, category, icon, requiredGender, requiredRace, str.toolTip}).ToList();
+                    let tradable = item.Attribute("tradable")?.Value ?? "False"
+                    where tradable == "True"
+                //                               where str.toolTip.Contains("$value")
+                                                        //                            where (category == "fiber" || category == "metal" || category == "alchemy" || category == "") && name != ""
+                                select new {id, str.name, category, icon, requiredGender, requiredRace, str.toolTip}).ToList();
                 items = items.Union(itemList, (x,y) => x.id==y.id, x=>x.id.GetHashCode()).ToList();
             }
             var outputTFile = new StreamWriter(Path.Combine(OutFolder, $"fullitems-{_region}.tsv"));
@@ -137,7 +139,7 @@ namespace TeraDataExtractor
             }
             //File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"), items.Select(x => $"{x.id}\t{x.rareGrade}\t{x.name}\t{x.linkEquipmentExpId}\t{x.coolTime}\t{x.icon.ToLowerInvariant()}"));
             File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"),items.Select(x=>new StringBuilder().Append(x.id).Append("\t")
-            .Append(x.rareGrade).Append("\t").Append(x.name).Append("\t").Append(x.linkEquipmentExpId).Append("\t").Append(x.coolTime).Append("\t").Append(x.icon.ToLowerInvariant()).ToString()));
+            .Append(x.rareGrade).Append("\t").Append(x.name).Append("\t").Append(x.linkEquipmentExpId).Append("\t").Append(x.coolTime).Append("\t").Append(x.icon.ToLowerInvariant()).ToString().Replace("\n", "&#xA;")));
         }
 
     }

@@ -37,8 +37,11 @@ namespace TeraDataExtractor
                 s = CaseOverride(s);
                 if (id == "SMT_GQUEST_URGENT_APPEAR") s = AppearMsgOverride(s);
                 if (id == "SMT_FIELDNAMED_DIE") s = RallyDieOverride(s);
-                if (id == "SMT_FIELDNAMED_RANK") s = "<font color='#1DDB16'>" + s; 
-                if (id == "SMT_GUILD_WAR_WITHDRAW_GUILDMONEY") s = s.Replace("</font></font>", "</font>"); 
+                if (id == "SMT_FIELDNAMED_RANK" && region != "RU" && region != "TW" && region != "JP" && region != "KR" && region != "KR-PTS")
+                    s = "<font color='#1DDB16'>" + s; 
+                if (id == "SMT_GUILD_WAR_WITHDRAW_GUILDMONEY") s = s.Replace("</font></font>", "</font>");
+                if (id == "SMT_MEDIATE_REG_WARNING_UI_MESSAGE" && region == "RU") s = "<font>" + s;
+                if ((id == "SMT_INGAMESTORE_BUYALERT" || id== "SMT_INGAMESTORE_TCAT_BUYALERT") && region == "TW") s = s + "</font>";
 
                 // Check <font/> tags consistency
                 if (s != "" && id != "SMT_BOOSTERENCHANT_GUIDE" && id != "SMT_CITYWAR_DEAD_MESSAGE")

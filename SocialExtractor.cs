@@ -27,7 +27,7 @@ namespace TeraDataExtractor
                 var id = s.Attribute("id").Value;
                 var name = s.Attribute("string").Value;
                 if (!name.StartsWith("{")) return; //make this better if some change to original file ever happens
-                lines.Add(id + "\t" + name);
+                lines.Add(id + "\t" + name.Replace("\n", "&#xA;"));
             });
             File.WriteAllLines(Path.Combine(OutFolder, $"social-{region}.tsv"), lines);
 
