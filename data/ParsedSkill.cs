@@ -13,7 +13,7 @@ namespace TeraDataExtractor
             SkillId = skillid;
             sType = stype;
             var i = category.IndexOf(',');
-            Category = i==-1 ? category : category.Split(',').FirstOrDefault(x => x.Length>=5)??category;
+            Category = i==-1 ? category : category.Split(',').Take(3).FirstOrDefault(x => x.Length>=5)??category.Substring(0, category.IndexOf(','));
             string cut = internalname.ToLowerInvariant().Replace("_"," ");
             modifiers = new List<string> { };
             bool _cut = true;
