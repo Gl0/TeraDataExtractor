@@ -23,7 +23,8 @@ namespace TeraDataExtractor
         {
             _region = region;
             skilllist = new List<Skill>();
-            RawExtract();
+            if (region == "JP-C") RawExtractOld();
+            else RawExtract();
             chained_skills();
             list = skilllist;
         }
@@ -32,7 +33,8 @@ namespace TeraDataExtractor
             _region = region;
             Directory.CreateDirectory(OutFolder);
             skilllist = new List<Skill>();
-            RawExtract();
+            if (region == "JP-C") RawExtractOld();
+            else RawExtract();
             chained_skills();
             item_Skills();
             loadoverride();
@@ -51,7 +53,7 @@ namespace TeraDataExtractor
         private void VehicleSkills()
         {
             var xml = XDocument.Load(RootFolder + _region + "/StrSheet_Creature.xml");
-            var mobNames = (from hunting in xml.Root.Elements("HuntingZone") let idzone = hunting.Attribute("id").Value from entity in hunting.Elements("String") let template = entity.Attribute("templateId").Value let name = entity.Attribute("name").Value where name != "" && template != "" && idzone != "" select new { idzone, template, name }).ToList();
+            var mobNames = (from hunting in xml.Root.Elements("HuntingZone") let idzone = hunting.Attribute("id").Value from entity in hunting.Elements("String") let template = entity.Attribute("templateId").Value let name = entity.Attribute("name")?.Value??"" where name != "" && template != "" && idzone != "" select new { idzone, template, name }).ToList();
             xml = XDocument.Load(RootFolder + _region + "/StrSheet_VehicleSkill.xml");
             var xml1 = XDocument.Load(RootFolder + _region + "/VehicleSkillIconData.xml");
             var petskills = (from sn in xml.Root.Elements("String")
@@ -274,6 +276,51 @@ namespace TeraDataExtractor
                          from skill in skills.DefaultIfEmpty()
                          select new Skill( sl.Id, sl.Race, sl.Gender, sl.PClass, sl.Name, skill?.IconName??"")).ToList();
         }
+
+        private void RawExtractOld()
+        {
+            var xml = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
+            var templates = (from races in xml.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
+            templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
+
+            foreach (
+                var file in
+                Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_UserSkill/"))
+            {
+                var xml1 = XDocument.Load(file);
+                var skilldata = (from item in xml1.Root.Elements("String") join temp in templates on item.Attribute("templateId").Value equals temp.templateId
+                    let id = item.Attribute("id").Value
+                    let race = temp.race
+                    let gender = temp.gender
+                    let PClass = temp.PClass
+                    let name = (item.Attribute("name") == null) ? "" : item.Attribute("name").Value
+                    where id != "" && race != "" && gender != "" && name != "" && PClass != ""
+                    select new Skill(id, "Common", "Common", PClass, name)).ToList();
+                skilllist = skilllist.Union(skilldata).ToList();
+            }
+            var icondata = new List<Skill>();
+            foreach (
+                var file in
+                Directory.EnumerateFiles(RootFolder + _region + "/SkillIconData/"))
+            {
+                var xml1 = XDocument.Load(file);
+                var skilldata = (from item in xml1.Root.Elements("Icon") join temp in templates on item.Attribute("templateId").Value equals temp.templateId
+                    let id = item.Attribute("skillId").Value
+                    let race = temp.race
+                    let gender = temp.gender
+                    let PClass = temp.PClass
+                    let iconName = (item.Attribute("iconName") == null) ? "" : item.Attribute("iconName").Value
+                    where id != "" && race != "" && gender != "" && PClass != ""
+                    select new Skill(id, "Common", "Common", PClass, "", iconName)).ToList();
+                icondata = icondata.Union(skilldata).ToList();
+            }
+            skilllist = (from sl in skilllist
+                join ic in icondata on new { sl.Race, sl.Gender, sl.PClass, sl.Id } equals new { ic.Race, ic.Gender, ic.PClass, ic.Id } into skills
+                from skill in skills.DefaultIfEmpty()
+                select new Skill(sl.Id, sl.Race, sl.Gender, sl.PClass, sl.Name, skill?.IconName ?? "")).ToList();
+        }
+
+
 
         private static int CompareItems(string idx, string idy, string x, string y)
         {

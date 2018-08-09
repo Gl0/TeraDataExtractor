@@ -70,7 +70,8 @@ namespace TeraDataExtractor
             xml = XDocument.Load(RootFolder + _region + "/LobbyShape.xml");
             var templates = (from races in xml.Root.Elements("SelectRace") let race = races.Attribute("race").Value.Cap() let gender = races.Attribute("gender").Value.Cap() from temp in races.Elements("SelectClass") let PClass = SkillExtractor.ClassConv(temp.Attribute("class").Value) let templateId = temp.Attribute("templateId").Value where temp.Attribute("available").Value == "True" select new { race, gender, PClass, templateId });
             //assume skills for different races and genders are the same per class 
-            templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
+            if (_region != "JP-C")
+                templates = templates.Distinct((x, y) => x.PClass == y.PClass, x => x.PClass.GetHashCode()).ToList();
             var summons = "".Select(t => new { id = string.Empty, skillId = string.Empty, PClass= string.Empty }).ToList();
             foreach (
                 var file in
@@ -140,7 +141,7 @@ namespace TeraDataExtractor
                            from entity in hunting.Elements("String") join summon in summonNames on new {idzone, identity=entity.Attribute("templateId").Value } equals new {summon.idzone, summon.identity } into results
                                 from res in results.DefaultIfEmpty()
                                 let identity = entity.Attribute("templateId").Value
-                                let name = string.IsNullOrWhiteSpace(res?.name)?entity.Attribute("name").Value : res.name
+                                let name = string.IsNullOrWhiteSpace(res?.name)?entity.Attribute("name")?.Value??"" : res.name
                            where name != "" && identity != "" && idzone != "" select new { idzone, identity, name }).ToList();
             mobdata = mobdata.Union(summonNames).ToList();
 
@@ -154,7 +155,7 @@ namespace TeraDataExtractor
                                 from entity in hunting.Elements("Template") let id = entity.Attribute("id").Value
                                     let boss = (entity.Attribute("showAggroTarget")==null)?false: bool.Parse(entity.Attribute("showAggroTarget").Value)
                                     let size = (entity.Attribute("size") == null) ? "" : entity.Attribute("size").Value
-                                from stat in entity.Elements("Stat") let maxHP = stat.Attribute("maxHp").Value
+                                from stat in entity.Elements("Stat") let maxHP = stat.Attribute("maxHp")?.Value??"0"
                                 where id != "" && idzone != "" select new { idzone, id, boss, maxHP,size }).ToList();
                 mobprop = mobprop.Union(mobpdata).ToList();
             }

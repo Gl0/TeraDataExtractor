@@ -239,7 +239,28 @@ namespace TeraDataExtractor
 
             xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
             var xml2 = XDocument.Load(RootFolder + _region + "/CrestData.xml");
-            var Glyphs = (from item in xml1.Root.Elements("String") join crestItem in xml2.Root.Elements("CrestItem") on item.Attribute("id").Value equals crestItem.Attribute("id").Value
+            var Glyphs = "".Select(t => new {passiveid=string.Empty, name = string.Empty, skillname = string.Empty, skillId = string.Empty, iconName = string.Empty, tooltip = string.Empty });
+            if (_region == "JP-C")
+                Glyphs = (from item in xml1.Root.Elements("String")
+                    join crestItem in xml2.Root.Elements("CrestItems").Descendants() on item.Attribute("id").Value equals crestItem.Attribute("id").Value
+                    let passiveid = item.Attribute("id").Value
+                    let name = item.Attribute("name").Value
+                    let pclass = SkillExtractor.ClassConv(crestItem.Parent.Attribute("class").Value)
+                    let skillname = item.Attribute("skillName").Value
+                    let searchname = _region == "RU" ? skillname.Replace("Всплеск ярости", "Сила гиганта").Replace("Разряд бумеранга", "Возвратный разряд").Replace("Фронтальная защита", "Сзывающий клич").Replace(":", "") :
+                        _region != "KR" ? skillname.Replace(":", "") : skillname
+                    let iconName1 = skilllist.Find(x => x.Name.Contains(searchname) && x.PClass == pclass)?.IconName ?? ""
+                    let skillId1 = skilllist.Find(x => x.Name.Contains(searchname) && x.PClass == pclass)?.Id ?? ""
+                    let iconName = _region == "KR" || iconName1 != "" || !name.Contains(" ") ? iconName1 : skilllist.Find(x => x.Name.ToLowerInvariant().Contains(
+                                                                                                                _region == "EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ') + 1)
+                                                                                                            ))?.IconName ?? ""
+                    let skillId = _region == "KR" || skillId1 != "" || !name.Contains(" ") ? skillId1 : skilllist.Find(x => x.Name.ToLowerInvariant().Contains(
+                                                                                                            _region == "EU-FR" ? name.ToLowerInvariant().Remove(name.LastIndexOf(' ')) : name.ToLowerInvariant().Substring(name.IndexOf(' ') + 1)
+                                                                                                        ))?.Id ?? ""
+                    let tooltip = item.Attribute("tooltip").Value
+                    select new { passiveid, name, skillname, skillId, iconName, tooltip });
+            else
+                Glyphs = (from item in xml1.Root.Elements("String") join crestItem in xml2.Root.Elements("CrestItem") on item.Attribute("id").Value equals crestItem.Attribute("id").Value
                           let passiveid = item.Attribute("id").Value
                           let name = item.Attribute("name").Value
                           let pclass = SkillExtractor.ClassConv(crestItem.Attribute("class").Value)
@@ -285,7 +306,7 @@ namespace TeraDataExtractor
 
                        where (iname!=null || iskill != null || gskill!=null)
                        orderby int.Parse(dot.abnormalid),int.Parse(dot.type)
-                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, long.Parse(dot.time), int.Parse(dot.tick), gskill==null?iname?.name??iskill.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,iname?.tooltip??"",gskill==null?iicon?.iconName??"":gskill.iconName,dot.property, bool.Parse(dot.isBuff), dot.isShow!="False", iicon?.iconName ?? "")).ToList();
+                       select new HotDot(int.Parse(dot.abnormalid), dot.type, double.Parse(dot.amount, CultureInfo.InvariantCulture), dot.method, long.Parse(dot.time), (int)Math.Floor(double.Parse(dot.tick, CultureInfo.InvariantCulture)), gskill==null?iname?.name??iskill.name:gskill.name, iskill==null?"":iskill.nameid, iskill == null ? "" : iskill.name,iname?.tooltip??"",gskill==null?iicon?.iconName??"":gskill.iconName,dot.property, bool.Parse(dot.isBuff), dot.isShow!="False", iicon?.iconName ?? "")).ToList();
 
             var Crests = "".Select(t => new { passiveid = string.Empty, skillname=string.Empty, skillId=string.Empty, iconName = string.Empty, name = string.Empty, glyphIcon=string.Empty,tooltip=string.Empty}).ToList();
             xml1 = XDocument.Load(RootFolder + _region + "/CrestIconData.xml");
