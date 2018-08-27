@@ -230,12 +230,12 @@ namespace TeraDataExtractor
                                 where iskills.abid != "902" //noctineum, bugged skills abnormals
                                 orderby int.Parse(iskills.abid)
                                 select new { abnormalid = iskills.abid, name = names.Name, iconName = names.IconName }).ToList();
-            var Passives = "".Select(t => new { abnormalid = string.Empty, name = string.Empty, iconName = string.Empty }).ToList();
 
-            foreach (var x1 in directSKills.GroupBy(x=>x.abnormalid))
-            {
-                Passives.Add(new { abnormalid = x1.Key, name = x1.Count()>1?SkillExtractor.RemoveLvl(x1.First().name): x1.First().name, iconName = x1.First().iconName });
-            }
+            var Passives = directSKills.GroupBy(x => x.abnormalid).Where(x => x.Key != "400500" && x.Key != "400501" && x.Key != "400508").Select(x1 => new {
+                    abnormalid = x1.Key,
+                    name = x1.Count() > 1 ? SkillExtractor.RemoveLvl(x1.First().name) : x1.First().name,
+                    iconName = x1.First().iconName
+                }).ToList(); ;
 
             xml1 = XDocument.Load(RootFolder + _region + "/StrSheet_Crest.xml");
             var xml2 = XDocument.Load(RootFolder + _region + "/CrestData.xml");
