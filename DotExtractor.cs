@@ -346,10 +346,8 @@ namespace TeraDataExtractor
         {
             string result = text;
             formatter changer;
-            for (int i = 2; i <= 7; i++)
+            for (int i = 2; i <= subs.Count; i++)
             {
-                if (subs.TryGetValue(Tuple.Create(abid, "value"), out changer))
-                    result = result.Replace("$time", long.Parse(changer.time) / 1000 + "s");
                 if (subs.TryGetValue(Tuple.Create(abid, "value" + i), out changer))
                     result = result.Replace("$value" + i, changer.change).Replace("$tickInterval" + i, changer.tick).Replace("$time", long.Parse(changer.time) / 1000 + "s");
                 else
@@ -359,7 +357,7 @@ namespace TeraDataExtractor
                         result = result.Replace("$value" + i, "unk"+i).Replace("$tickInterval" + i, "unk"+i);
             }
             if (subs.TryGetValue(Tuple.Create(abid, "value"), out changer))
-                result = result.Replace("$value", changer.change).Replace("$tickInterval", changer.tick + "s");
+                result = result.Replace("$value", changer.change).Replace("$tickInterval", changer.tick + "s").Replace("$time", long.Parse(changer.time) / 1000 + "s"); ;
             return result;
         }
         private bool isGlyph(string name)
