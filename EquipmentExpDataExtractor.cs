@@ -19,6 +19,7 @@ namespace TeraDataExtractor
         public EquipmentExpDataExtractor(string region)
         {
             _region = region;
+            if (region.Contains("C"))return;
             Directory.CreateDirectory(OutFolder);
             File.Copy(Path.Combine(RootFolder,_region, "EquipmentExpData.xml"),
                         Path.Combine(OutFolder, $"equip_exp-{_region}.xml"), true);

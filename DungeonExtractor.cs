@@ -21,7 +21,7 @@ namespace TeraDataExtractor
         {
             Directory.CreateDirectory(OutFolder);
             var lines = new List<string>();
-            XDocument.Load(Path.Combine(RootFolder, region, "StrSheet_Dungeon", "StrSheet_Dungeon-0.xml")).
+            XDocument.Load(Path.Combine(RootFolder, region, "StrSheet_Dungeon", "StrSheet_Dungeon-" + (region == "NA" ? "1" : "0") + ".xml")).
             Descendants().Where(x => x.Name == "String").ToList().ForEach(s =>
             {
                 var id = s.Attribute("id").Value;

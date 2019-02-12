@@ -100,6 +100,7 @@ namespace TeraDataExtractor
         public GuildQuestsExtractor(string region)
         {
             _region = region;
+            if (region.Contains("C")) return;
             GuildQuests = new Dictionary<uint, GuildQuest>();
             Load(region);
             ParseStrSheetDoc();

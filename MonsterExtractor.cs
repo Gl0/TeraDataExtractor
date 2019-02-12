@@ -110,7 +110,7 @@ namespace TeraDataExtractor
                 contToStr = contToStr.Union(areadata).ToList();
             }
 
-            xml = XDocument.Load(RootFolder + _region + "/StrSheet_Dungeon/StrSheet_Dungeon-0.xml");
+            xml = XDocument.Load(RootFolder + _region + "/StrSheet_Dungeon/StrSheet_Dungeon-"+(_region=="NA"?"1":"0")+".xml");
             var dundata = (from dun in xml.Root.Elements("String") let idcont = dun.Attribute("id").Value let dunname = dun.Attribute("string").Value where idcont != "" && dunname != "" select new { idcont, dunname }).ToList();
 
             var regdd = (from contn in contToStr
@@ -119,15 +119,24 @@ namespace TeraDataExtractor
                          join dun in dundata on contn.idcont equals dun.idcont into regdun
                          from rd in regdun.DefaultIfEmpty()
                             select new { idcont = contn.idcont, regname = rd == null ? rg.regname : rd.dunname ,nameid = contn.nameid}).ToList();
+            xml = XDocument.Load(RootFolder + _region + "/StrSheet_ZoneName.xml");
+            var zdata = (from zone in xml.Root.Elements("String")
+                         from cont in contdata
+                            let Id = zone.Attribute("id").Value
+                            let Name = zone.Attribute("string").Value
+                            let battle = cont.battle
+                            where cont.idzone == Id 
+                            select new { Id = Convert.ToInt32(Id), Name, battle }).ToList();
 
-            var zonedata= ( from rd in regdd
+            var zonedata = ( from rd in regdd
                             from cont in contdata
-                            where rd.idcont == cont.idcont 
+                            where rd.idcont == cont.idcont
                             let idzone= Convert.ToInt32(cont.idzone) let battle = cont.battle
                             let prio= (!rd.nameid.StartsWith(cont.idzone))
                             orderby idzone,prio
                             select new { Id=idzone, Name=rd.regname,battle} ).ToList();
-            zonedata=zonedata.Distinct((x, y) => x.Id == y.Id, (x) => x.Id.GetHashCode()).ToList();
+            zonedata = zdata.Union(zonedata).ToList();
+            zonedata =zonedata.Distinct((x, y) => x.Id == y.Id, (x) => x.Id.GetHashCode()).ToList();
             //using (StreamWriter outputFile = new StreamWriter("data/cont.csv"))
             //{
             //    foreach (var line in zonedata)
@@ -135,7 +144,7 @@ namespace TeraDataExtractor
             //        outputFile.WriteLine("{0};{1}", line.Id, line.Name);
             //    }
             //}
-            xml = XDocument.Load(RootFolder + _region + "/StrSheet_Creature.xml");
+            xml = XDocument.Load(RootFolder + _region + (_region=="NA"? "/StrSheet_Creature/StrSheet_Creature-0.xml" : "/StrSheet_Creature.xml"));
             var mobdata = (from hunting in xml.Root.Elements("HuntingZone")
                            let idzone = hunting.Attribute("id").Value
                            from entity in hunting.Elements("String") join summon in summonNames on new {idzone, identity=entity.Attribute("templateId").Value } equals new {summon.idzone, summon.identity } into results

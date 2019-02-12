@@ -24,6 +24,7 @@ namespace TeraDataExtractor
             _region = region;
             skilllist = new List<Skill>();
             if (region == "JP-C") RawExtractOld();
+            else if (region.Contains("C")) RawExtractEUC();
             else RawExtract();
             chained_skills();
             list = skilllist;
@@ -34,6 +35,7 @@ namespace TeraDataExtractor
             Directory.CreateDirectory(OutFolder);
             skilllist = new List<Skill>();
             if (region == "JP-C") RawExtractOld();
+            else if (region.Contains("C")) RawExtractEUC();
             else RawExtract();
             chained_skills();
             item_Skills();
@@ -320,6 +322,31 @@ namespace TeraDataExtractor
                 select new Skill(sl.Id, sl.Race, sl.Gender, sl.PClass, sl.Name, skill?.IconName ?? "")).ToList();
         }
 
+        private void RawExtractEUC()
+        {
+            var xml = XDocument.Load(RootFolder + _region + "/StrSheet_UserSkill.xml");
+            skilllist = (from item in xml.Root.Elements("String")
+                let id = item.Attribute("id").Value
+                let race = item.Attribute("race").Value
+                let gender = item.Attribute("gender").Value
+                let PClass = (item.Attribute("class") == null) ? "" : ClassConv(item.Attribute("class").Value)
+                let name = (item.Attribute("name") == null) ? "" : item.Attribute("name").Value
+                where id != "" && race != "" && gender != "" && name != "" && PClass != ""
+                select new Skill(id, race, gender, PClass, name)).ToList();
+            var xml1 = XDocument.Load(RootFolder + _region + "/SkillIconData.xml");
+            var icondata = (from item in xml1.Root.Elements("Icon")
+                let id = item.Attribute("skillId").Value
+                let race = item.Attribute("race").Value
+                let gender = item.Attribute("gender").Value
+                let PClass = (item.Attribute("class") == null) ? "" : ClassConv(item.Attribute("class").Value)
+                let iconName = (item.Attribute("iconName") == null) ? "" : item.Attribute("iconName").Value
+                where id != "" && race != "" && gender != "" && PClass != ""
+                select new Skill(id, race, gender, PClass, "", iconName)).ToList();
+            skilllist = (from sl in skilllist
+                         join ic in icondata on new { sl.Race, sl.Gender, sl.PClass, sl.Id } equals new { ic.Race, ic.Gender, ic.PClass, ic.Id } into skills
+                         from skill in skills.DefaultIfEmpty()
+                         select new Skill(sl.Id, sl.Race, sl.Gender, sl.PClass, sl.Name, skill?.IconName ?? "")).ToList();
+        }
 
 
         private static int CompareItems(string idx, string idy, string x, string y)

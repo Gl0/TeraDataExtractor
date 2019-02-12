@@ -21,6 +21,7 @@ namespace TeraDataExtractor
         public AchievementGradeInfoExtractor(string region)
         {
             _region = region;
+            if (region.Contains("C")) return;
             Directory.CreateDirectory(OutFolder);
             var xdoc = XDocument.Load(Path.Combine(RootFolder, _region, "StrSheet_AchievementGradeInfo.xml"));
 

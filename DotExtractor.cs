@@ -22,7 +22,7 @@ namespace TeraDataExtractor
             _region = region;
             Directory.CreateDirectory(OutFolder);
             RawExtract();
-            //AddCharms(); //no more charms
+            if (region.Contains("C")) AddCharms(); //charms on classic only
             var outputFile = new StreamWriter(Path.Combine(OutFolder, $"hotdot-{_region}.tsv"));
             foreach (HotDot line in Dotlist)
             {
@@ -54,9 +54,10 @@ namespace TeraDataExtractor
             var notinteresting = new string[] {"8", "9", "18", "20", "27", "28", "103", "105", "108", "168", "221", "227" };
             var redirects_to_ignore = new string[] { "161", "182", "252", "264"};
             var redirects_to_follow = new string[] { "64", "161", "182", "223", "248", "252", "264", "271" };
-            foreach (
-                var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/"))
+            List<string> files;
+            if (_region.Contains("C")) files = new List<string> {RootFolder + _region + "/Abnormality.xml"};
+            else files = Directory.EnumerateFiles(RootFolder + _region + "/Abnormality/").ToList();
+            foreach ( var file in files)
             {
                 var xml = XDocument.Load(file);
                 var Dotdata = (from item in xml.Root.Elements("Abnormal")
@@ -124,9 +125,9 @@ namespace TeraDataExtractor
 
             Dots = Dots.Distinct((x, y) => x.abnormalid.Equals(y.abnormalid) && x.type == y.type, x => (x.abnormalid + "l" + x.type).GetHashCode()).ToList();
             var Names = "".Select(t => new { abnormalid = string.Empty, name = string.Empty, tooltip=string.Empty }).ToList();
-            foreach (
-                var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Abnormality/"))
+            if (_region.Contains("C")) files = new List<string> { RootFolder + _region + "/StrSheet_Abnormality.xml" };
+            else files = Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Abnormality/").ToList();
+            foreach ( var file in files)
             {
                 var xml = XDocument.Load(file);
                 var Namedata = (from item in xml.Root.Elements("String")
@@ -150,9 +151,9 @@ namespace TeraDataExtractor
             });
 
             var Icons = "".Select(t => new { abnormalid = string.Empty, iconName = string.Empty }).ToList();
-            foreach (
-                var file in
-                    Directory.EnumerateFiles(RootFolder + _region + "/AbnormalityIconData/"))
+            if (_region.Contains("C")) files = new List<string> { RootFolder + _region + "/AbnormalityIconData.xml" };
+            else files = Directory.EnumerateFiles(RootFolder + _region + "/AbnormalityIconData/").ToList();
+            foreach (var file in files)
             {
                 var xml = XDocument.Load(file);
                 var IconData = (from item in xml.Root.Elements("Icon")
