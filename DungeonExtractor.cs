@@ -17,18 +17,42 @@ namespace TeraDataExtractor
         private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "dungeons");
 
+        public class Dungeon
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+            public string Coins { get; set; }
+
+            public string ToTsv()
+            {
+                return $"{Id}\t{Name}\t{Coins}";
+            }
+        }
         public DungeonsExtractor(string region)
         {
             Directory.CreateDirectory(OutFolder);
-            var lines = new List<string>();
-            XDocument.Load(Path.Combine(RootFolder, region, "StrSheet_Dungeon", "StrSheet_Dungeon-" + (region == "NA" ? "1" : "0") + ".xml")).
-            Descendants().Where(x => x.Name == "String").ToList().ForEach(s =>
+            var lines = new Dictionary<string, Dungeon>();
+            XDocument.Load(Path.Combine(RootFolder + region, "StrSheet_Dungeon", "StrSheet_Dungeon-" + (region == "NA" ? "1" : "0") + ".xml"))
+            .Descendants().Where(x => x.Name == "String").ToList().ForEach(s =>
             {
                 var id = s.Attribute("id").Value;
-                var name = s.Attribute("string").Value;
-                lines.Add(id + "\t" + name.Replace("\n", "&#xA;"));
+                var name = s.Attribute("string").Value.Replace("\n", "&#xA;");
+                lines[id] = new Dungeon { Id = id, Name = name, Coins = "0" };
             });
-            File.WriteAllLines(Path.Combine(OutFolder, $"dungeons-{region}.tsv"), lines);
+            XDocument.Load(Path.Combine(RootFolder + region, "DungeonConstraint.xml"))
+            .Descendants().Where(x => x.Name == "Constraint").ToList().ForEach(c =>
+            {
+                var id = c.Attribute("continentId").Value;
+                var coins = c.Attribute("requiredActPoint").Value;
+                if(!lines.TryGetValue(id, out var dg)) return;
+                dg.Coins = coins;
+            });
+            var output = new StringBuilder();
+            lines.Values.ToList().ForEach(dg =>
+            {
+                output.AppendLine(dg.ToTsv());
+            });
+            File.WriteAllText(Path.Combine(OutFolder, $"dungeons-{region}.tsv"), output.ToString().Replace("\r", ""));
 
         }
     }
