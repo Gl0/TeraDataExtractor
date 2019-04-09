@@ -54,7 +54,7 @@ namespace TeraDataExtractor
 
         private void VehicleSkills()
         {
-            var xml = XDocument.Load(RootFolder + _region + "/StrSheet_Creature.xml");
+            var xml = XDocument.Load(RootFolder + _region + (_region == "NA" ? "/StrSheet_Creature/StrSheet_Creature-0.xml" : "/StrSheet_Creature.xml"));
             var mobNames = (from hunting in xml.Root.Elements("HuntingZone") let idzone = hunting.Attribute("id").Value from entity in hunting.Elements("String") let template = entity.Attribute("templateId").Value let name = entity.Attribute("name")?.Value??"" where name != "" && template != "" && idzone != "" select new { idzone, template, name }).ToList();
             xml = XDocument.Load(RootFolder + _region + "/StrSheet_VehicleSkill.xml");
             var xml1 = XDocument.Load(RootFolder + _region + "/VehicleSkillIconData.xml");

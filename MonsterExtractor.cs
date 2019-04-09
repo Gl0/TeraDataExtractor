@@ -110,7 +110,7 @@ namespace TeraDataExtractor
                 contToStr = contToStr.Union(areadata).ToList();
             }
 
-            xml = XDocument.Load(RootFolder + _region + "/StrSheet_Dungeon/StrSheet_Dungeon-"+(_region=="NA"?"1":"0")+".xml");
+            xml = XDocument.Load(RootFolder + _region + "/StrSheet_Dungeon/StrSheet_Dungeon-"+(_region=="NA"?"0":"0")+".xml");
             var dundata = (from dun in xml.Root.Elements("String") let idcont = dun.Attribute("id").Value let dunname = dun.Attribute("string").Value where idcont != "" && dunname != "" select new { idcont, dunname }).ToList();
 
             var regdd = (from contn in contToStr
