@@ -26,7 +26,7 @@ namespace TeraDataExtractor
             var outputFile = new StreamWriter(Path.Combine(OutFolder, $"hotdot-{_region}.tsv"));
             foreach (HotDot line in Dotlist)
             {
-                outputFile.WriteLine(line.ToString().Replace('\r',' ').Replace('\n',' ');
+                outputFile.WriteLine(line.ToString().Replace('\r',' ').Replace('\n',' '));
                 Program.Copytexture(line.IconName,line.AbnormalId);
             }
             outputFile.Flush();
