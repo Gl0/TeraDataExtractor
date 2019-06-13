@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Packaging;
+using System.Linq;
+using System.Threading.Tasks;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
@@ -11,167 +14,61 @@ namespace TeraDataExtractor
         public static string OutputPath = "data";
         public static string IconFolder = Path.Combine(OutputPath, "icons");
         public static List<string> Copied = new List<string>();
-        public static SortedDictionary<int,string> abnormals = new SortedDictionary<int, string>();
+        public static SortedDictionary<int, string> abnormals = new SortedDictionary<int, string>();
         private static void Main(string[] args)
         {
             Directory.CreateDirectory(OutputPath);//create output directory if not exist
             Directory.CreateDirectory(IconFolder);//create output directory if not exist
-
-
-            new MonsterExtractor("RU");
-            new MonsterExtractor("EU-EN");
-            new MonsterExtractor("EU-FR");
-            new MonsterExtractor("EU-GER");
-            new MonsterExtractor("NA");
-            new MonsterExtractor("TW");
-            new MonsterExtractor("JP");
-            new MonsterExtractor("KR");
-
-            new SkillExtractor("RU");
-            new SkillExtractor("EU-EN");
-            new SkillExtractor("EU-FR");
-            new SkillExtractor("EU-GER");
-            new SkillExtractor("NA");
-            new SkillExtractor("TW");
-            new SkillExtractor("JP");
-            new SkillExtractor("KR");
-
-            new DotExtractor("RU");
-            new DotExtractor("EU-EN");
-            new DotExtractor("EU-FR");
-            new DotExtractor("EU-GER");
-            new DotExtractor("NA");
-            new DotExtractor("TW");
-            new DotExtractor("JP");
-            new DotExtractor("KR");
-
-            new Quests("RU");
-            new Quests("EU-EN");
-            new Quests("EU-FR");
-            new Quests("EU-GER");
-            new Quests("NA");
-            new Quests("TW");
-            new Quests("JP");
-            new Quests("KR");
+            Parallel.ForEach(args.ToList(), region => {
+                var dirInfo = new DirectoryInfo(SourcePath + region);
+                var fileName = dirInfo.EnumerateFiles("Datacenter_Fina*").OrderByDescending(x => x.LastWriteTimeUtc).FirstOrDefault()?.FullName;
+                if (string.IsNullOrWhiteSpace(fileName)) {Console.WriteLine("Missing "+fileName);return;}
+                using var dc = new DataCenter(fileName, true);
+                new SkillExtractor(region, dc, out var skills, out var templates);
+                new MonsterExtractor(region, dc, skills, templates);
+                new DotExtractor(region, dc, skills, templates);
+                TCCStuff(region, dc);
+            });
 
             PackIcons();
-
-            #region TCC stuff --------------------------------------------------------------------------------------------
-            new AccountBenefitExtractor("RU");
-            new AccountBenefitExtractor("EU-EN");
-            new AccountBenefitExtractor("EU-FR");
-            new AccountBenefitExtractor("EU-GER");
-            new AccountBenefitExtractor("NA");
-            new AccountBenefitExtractor("TW");
-            new AccountBenefitExtractor("JP");
-            new AccountBenefitExtractor("KR");
-
-            new NewWorldMapDataExtractor("RU");
-            new NewWorldMapDataExtractor("EU-EN");
-            new NewWorldMapDataExtractor("EU-FR");
-            new NewWorldMapDataExtractor("EU-GER");
-            new NewWorldMapDataExtractor("NA");
-            new NewWorldMapDataExtractor("TW");
-            new NewWorldMapDataExtractor("JP");
-            new NewWorldMapDataExtractor("KR");
-
-            new EquipmentExpDataExtractor("RU");
-            new EquipmentExpDataExtractor("EU-EN");
-            new EquipmentExpDataExtractor("EU-FR");
-            new EquipmentExpDataExtractor("EU-GER");
-            new EquipmentExpDataExtractor("NA");
-            new EquipmentExpDataExtractor("TW");
-            new EquipmentExpDataExtractor("JP");
-            new EquipmentExpDataExtractor("KR");
-
-            new AchievementGradeInfoExtractor("RU");
-            new AchievementGradeInfoExtractor("EU-EN");
-            new AchievementGradeInfoExtractor("EU-FR");
-            new AchievementGradeInfoExtractor("EU-GER");
-            new AchievementGradeInfoExtractor("NA");
-            new AchievementGradeInfoExtractor("TW");
-            new AchievementGradeInfoExtractor("JP");
-            new AchievementGradeInfoExtractor("KR");
-
-            new AchievementsExtractor("RU");
-            new AchievementsExtractor("EU-EN");
-            new AchievementsExtractor("EU-FR");
-            new AchievementsExtractor("EU-GER");
-            new AchievementsExtractor("NA");
-            new AchievementsExtractor("TW");
-            new AchievementsExtractor("JP");
-            new AchievementsExtractor("KR");
-
-            new DungeonsExtractor("RU");
-            new DungeonsExtractor("EU-EN");
-            new DungeonsExtractor("EU-FR");
-            new DungeonsExtractor("EU-GER");
-            new DungeonsExtractor("NA");
-            new DungeonsExtractor("TW");
-            new DungeonsExtractor("JP");
-            new DungeonsExtractor("KR");
-
-            new QuestExtractor("RU");
-            new QuestExtractor("EU-EN");
-            new QuestExtractor("EU-FR");
-            new QuestExtractor("EU-GER");
-            new QuestExtractor("NA");
-            new QuestExtractor("TW");
-            new QuestExtractor("JP");
-            new QuestExtractor("KR");
-
-            new RegionExtractor("RU");
-            new RegionExtractor("EU-EN");
-            new RegionExtractor("EU-FR");
-            new RegionExtractor("EU-GER");
-            new RegionExtractor("NA");
-            new RegionExtractor("TW");
-            new RegionExtractor("JP");
-            new RegionExtractor("KR");
-
-            new SocialExtractor("RU");
-            new SocialExtractor("EU-EN");
-            new SocialExtractor("EU-FR");
-            new SocialExtractor("EU-GER");
-            new SocialExtractor("NA");
-            new SocialExtractor("TW");
-            new SocialExtractor("JP");
-            new SocialExtractor("KR");
-
-            new SystemMessagesExtractor("RU");
-            new SystemMessagesExtractor("EU-EN");
-            new SystemMessagesExtractor("EU-FR");
-            new SystemMessagesExtractor("EU-GER");
-            new SystemMessagesExtractor("NA");
-            new SystemMessagesExtractor("TW");
-            new SystemMessagesExtractor("JP");
-            new SystemMessagesExtractor("KR");
-
-            new GuildQuestsExtractor("RU");
-            new GuildQuestsExtractor("EU-EN");
-            new GuildQuestsExtractor("EU-FR");
-            new GuildQuestsExtractor("EU-GER");
-            new GuildQuestsExtractor("NA");
-            new GuildQuestsExtractor("TW");
-            new GuildQuestsExtractor("JP");
-            new GuildQuestsExtractor("KR");
-
-            #endregion
         }
-        public static void Copytexture(string name,int id=0)
+
+
+        public static void TCCStuff(string region, DataCenter dc=null)
+        {
+            new ItemsExtractor(region, dc);
+            new AccountBenefitExtractor(region, dc);
+            new NewWorldMapDataExtractor(region, dc);
+            new EquipmentExpDataExtractor(region, dc); //
+            new AchievementGradeInfoExtractor(region, dc); //
+            new AchievementsExtractor(region, dc);
+            new DungeonsExtractor(region, dc);
+            new QuestExtractor(region, dc);
+            new RegionExtractor(region, dc);
+            new SocialExtractor(region, dc);
+            new SystemMessagesExtractor(region, dc);
+            new GuildQuestsExtractor(region, dc); //
+        }
+
+        public static void Copytexture(string name, int id = 0)
         {
             name = name.ToLowerInvariant();
-            if (!string.IsNullOrEmpty(name)&&!Copied.Contains(name))
+            lock (Copied)
             {
-                var filename = SourcePath + "Icons\\" + name.Replace(".", "\\Texture2D\\") + ".png";
-                if (File.Exists(filename))
+                if (!string.IsNullOrEmpty(name) && !Copied.Contains(name))
                 {
-                    File.Copy(filename, Path.Combine(IconFolder, name + ".png"), true);
-                    Copied.Add(name);
+                    var filename = SourcePath + "Icons\\" + name.Replace(".", "\\Texture2D\\") + ".png";
+                    var outfilename = Path.Combine(IconFolder, name + ".png");
+                    if (File.Exists(filename))
+                    {
+                        if (!File.Exists(outfilename))
+                            File.Copy(filename, Path.Combine(outfilename), true);
+                        Copied.Add(name);
+                    }
+                    else Console.WriteLine("Not found texture: " + name);
                 }
-                else Console.WriteLine("Not found texture: " + name);
             }
-            if (!string.IsNullOrEmpty(name) && id!=0 && !abnormals.ContainsKey(id)) abnormals.Add(id, name);
+            if (!string.IsNullOrEmpty(name) && id != 0 && !abnormals.ContainsKey(id)) abnormals.Add(id, name);
         }
 
         public static void PackIcons()
@@ -182,7 +79,7 @@ namespace TeraDataExtractor
             Package zip = Package.Open(IconFolder + ".zip", FileMode.OpenOrCreate, FileAccess.ReadWrite);
             foreach (var file in Directory.EnumerateFiles(IconFolder))
             {
-                PackagePart part= zip.CreatePart(new Uri("/"+Path.GetFileName(file),UriKind.Relative), "image/png",CompressionOption.Maximum);
+                PackagePart part = zip.CreatePart(new Uri("/" + Path.GetFileName(file), UriKind.Relative), "image/png", CompressionOption.Maximum);
                 using (FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
                 {
                     fileStream.CopyTo(part.GetStream());
@@ -199,7 +96,7 @@ namespace TeraDataExtractor
                 fileStream.CopyTo(part1.GetStream());
             }
             zip.Close();
-            
+
             if (abnormals.Count > 0)
             {
                 var outputFile = new StreamWriter(Path.Combine(OutputPath, $"hotdot/abnormal.tsv"));

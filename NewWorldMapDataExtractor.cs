@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
+using Alkahest.Core.Data;
 using TeraDataExtractor.data;
 
 namespace TeraDataExtractor
@@ -15,57 +13,52 @@ namespace TeraDataExtractor
     public class NewWorldMapDataExtractor
     {
         private readonly string _region;
-        private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "world_map");
         private List<MapElement> _worlds;
 
-        public NewWorldMapDataExtractor(string region)
+        public NewWorldMapDataExtractor(string region, DataCenter dc)
         {
             _region = region;
             Directory.CreateDirectory(OutFolder);
             _worlds = new List<MapElement>();
-            var xdoc = XDocument.Load(Path.Combine(RootFolder, _region, "NewWorldMapData.xml"));
-            xdoc.Descendants().Where(x => x.Name == "World").ToList().ForEach(worldEl =>
-            {
-                var wId = Convert.ToUInt32(worldEl.Attribute("id").Value);
-                var wNameId = worldEl.Attribute("nameId") != null ? Convert.ToUInt32(worldEl.Attribute("nameId").Value) : 0;
-                var wMapId = worldEl.Attribute("mapId") != null ? worldEl.Attribute("mapId").Value : "";
-                var world = new MapElement(wId, wNameId, wMapId);
+            dc.Root.Child("NewWorldMapData").Children("World").ToList().ForEach(worldEl => {
+                int wId = worldEl["id", 0].ToInt32();
+                int wNameId = worldEl["nameId",0].ToInt32();
+                string wMapId = worldEl["mapId",""].AsString;
+                var world = new MapElement(wId , wNameId, wMapId);
 
-                worldEl.Descendants().Where(x => x.Name == "Guard").ToList().ForEach(guardEl =>
+                worldEl.Children("Guard").ToList().ForEach(guardEl =>
                 {
-                    var gId = Convert.ToUInt32(guardEl.Attribute("id").Value);
-                    var gNameId = guardEl.Attribute("nameId") != null ? Convert.ToUInt32(guardEl.Attribute("nameId").Value) : 0;
-                    var gMapId = guardEl.Attribute("mapId") != null ? guardEl.Attribute("mapId").Value : "";
-
+                    var gId = guardEl["id",0].ToInt32();
+                    var gNameId = guardEl["nameId",0].ToInt32();
+                    var gMapId = guardEl["mapId",""].AsString;
                     var guard = new MapElement(gId, gNameId, gMapId);
 
-                    guardEl.Descendants().Where(x => x.Name == "Section").ToList().ForEach(sectionEl =>
+                    guardEl.Children("Section").ToList().ForEach(sectionEl =>
                     {
-                        var sId = Convert.ToUInt32(sectionEl.Attribute("id").Value);
-                        var sNameId = Convert.ToUInt32(sectionEl.Attribute("nameId").Value);
-                        var sMapId = sectionEl.Attribute("mapId")?.Value??"";
-                        var dg = sectionEl.Attribute("type") != null && sectionEl.Attribute("type").Value == "dungeon" ? true : false;
-                        var cId = sectionEl.Descendants().Any() ?
-                            uint.Parse(sectionEl.Descendants().FirstOrDefault(x => x.Name == "Npc").Attribute("continentId").Value) :
-                            0;
+                        var sId = sectionEl["id",0].ToInt32();
+                        var sNameId = sectionEl["nameId",0].ToInt32();
+                        var sMapId = sectionEl["mapId",""].AsString;
+                        var dg = sectionEl["type",""].AsString == "dungeon" ? true : false;
+                        var cId = sectionEl.Children("Npc").FirstOrDefault() ? ["continentId", 0].ToInt32() ?? 0;
                         var section = new MapElement(sId, sNameId, sMapId, dg);
                         if (guard.ContinentId == 0) guard.ContinentId = cId;
                         guard.Children.Add(section);
                     });
-
                     world.Children.Add(guard);
                 });
-
                 _worlds.Add(world);
             });
+            SaveMap();
+        }
 
+        private void SaveMap() {
             var root = new XElement("WorldMap");
             _worlds.ToList().ForEach(w =>
             {
                 var wEl = new XElement("World", new XAttribute("id", w.Id),
-                                                new XAttribute("mapId", w.MapId),
-                                                new XAttribute("nameId", w.NameId));
+                    new XAttribute("mapId", w.MapId),
+                    new XAttribute("nameId", w.NameId));
                 w.Children.ForEach(g =>
                 {
                     var gEl = new XElement("Guard", new XAttribute("id", g.Id),
@@ -75,8 +68,8 @@ namespace TeraDataExtractor
                     {
 
                         var sEl = new XElement("Section", new XAttribute("id", s.Id),
-                                                        new XAttribute("mapId", s.MapId),
-                                                        new XAttribute("nameId", s.NameId));
+                            new XAttribute("mapId", s.MapId),
+                            new XAttribute("nameId", s.NameId));
                         if (s.IsDungeon) sEl.Add(new XAttribute("type", "dungeon"));
                         gEl.Add(sEl);
                     });
@@ -86,6 +79,5 @@ namespace TeraDataExtractor
             });
             root.Save(Path.Combine(OutFolder, $"world_map-{_region}.xml"));
         }
-
     }
 }

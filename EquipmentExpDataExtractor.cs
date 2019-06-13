@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
+using System.Xml;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
@@ -13,16 +10,13 @@ namespace TeraDataExtractor
     /// </summary>
     public class EquipmentExpDataExtractor
     {
-        private readonly string _region;
-        private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "equip_exp");
-        public EquipmentExpDataExtractor(string region)
+        public EquipmentExpDataExtractor(string region, DataCenter dc)
         {
-            _region = region;
-            if (region.Contains("C"))return;
+            if (region.Contains("C")) return;
             Directory.CreateDirectory(OutFolder);
-            File.Copy(Path.Combine(RootFolder,_region, "EquipmentExpData.xml"),
-                        Path.Combine(OutFolder, $"equip_exp-{_region}.xml"), true);
+            using var writer = XmlWriter.Create(Path.Combine(OutFolder, $"equip_exp-{region}.xml"), new XmlWriterSettings{Indent = true});
+            dc.Root.Child("EquipmentExpData").WriteElement(writer);
         }
     }
 }

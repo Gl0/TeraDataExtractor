@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace TeraDataExtractor
+﻿namespace TeraDataExtractor
 {
     public class Monster
     {

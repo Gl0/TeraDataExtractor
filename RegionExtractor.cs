@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
@@ -14,22 +10,18 @@ namespace TeraDataExtractor
     /// </summary>
     public class RegionExtractor
     {
-        private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "regions");
 
-        public RegionExtractor(string region)
+        public RegionExtractor(string region,DataCenter dc)
         {
             Directory.CreateDirectory(OutFolder);
-            var lines = new List<string>();
-            XDocument.Load(Path.Combine(RootFolder, region, "StrSheet_Region.xml")).
-            Descendants().Where(x => x.Name == "String").ToList().ForEach(s =>
-            {
-                var id = s.Attribute("id").Value;
-                var name = s.Attribute("string").Value;
-                lines.Add(id + "\t" + name.Replace("\n", "&#xA;"));
-            });
-            File.WriteAllLines(Path.Combine(OutFolder, $"regions-{region}.tsv"), lines);
+            var strings = (from str in dc.Root.Child("StrSheet_Region").Children("String")
+                let id = str["id", 0].ToInt32()
+                let name = str["string", ""].AsString.Replace("\n", "&#xA;") ?? ""
+                where name != "" && id != 0
+                select new { id, name }).ToList();
 
+            File.WriteAllLines(Path.Combine(OutFolder, $"regions-{region}.tsv"), strings.OrderBy(x => x.id).Select(x => x.id.ToString() + "\t" + x.name));
         }
     }
 }

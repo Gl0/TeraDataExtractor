@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
@@ -19,41 +15,29 @@ namespace TeraDataExtractor
 
         public class Dungeon
         {
-            public string Id { get; set; }
+            public int Id { get; set; }
             public string Name { get; set; }
-            public string Coins { get; set; }
+            public int Coins { get; set; }
 
             public string ToTsv()
             {
                 return $"{Id}\t{Name}\t{Coins}";
             }
         }
-        public DungeonsExtractor(string region)
+
+        public DungeonsExtractor(string region, DataCenter dc)
         {
             Directory.CreateDirectory(OutFolder);
-            var lines = new Dictionary<string, Dungeon>();
-            XDocument.Load(Path.Combine(RootFolder + region, "StrSheet_Dungeon", "StrSheet_Dungeon-" + (region == "NA" ? "0" : "0") + ".xml"))
-            .Descendants().Where(x => x.Name == "String").ToList().ForEach(s =>
-            {
-                var id = s.Attribute("id").Value;
-                var name = s.Attribute("string").Value.Replace("\n", "&#xA;");
-                lines[id] = new Dungeon { Id = id, Name = name, Coins = "0" };
-            });
-            XDocument.Load(Path.Combine(RootFolder + region, "DungeonConstraint.xml"))
-            .Descendants().Where(x => x.Name == "Constraint").ToList().ForEach(c =>
-            {
-                var id = c.Attribute("continentId").Value;
-                var coins = c.Attribute("requiredActPoint").Value;
-                if(!lines.TryGetValue(id, out var dg)) return;
-                dg.Coins = coins;
-            });
-            var output = new StringBuilder();
-            lines.Values.ToList().ForEach(dg =>
-            {
-                output.AppendLine(dg.ToTsv());
-            });
-            File.WriteAllText(Path.Combine(OutFolder, $"dungeons-{region}.tsv"), output.ToString().Replace("\r", ""));
+            var strings = (from str in dc.Root.Children("StrSheet_Dungeon").SelectMany(x => x.Children("String"))
+                join constr in dc.Root.Child("DungeonConstraint").Child("ConstraintList").Children("Constraint") on str["id", 0].ToInt32() equals constr["continentId", 0].ToInt32() into dungeons
+                from dungeon in dungeons.DefaultIfEmpty()
+                let id = str["id", 0].ToInt32()
+                let name = str["string", ""].AsString.Replace("\n", "&#xA;") ?? ""
+                let coins = dungeon?["requiredActPoint", 0].ToInt32()??0
+                where name != "" && (id > 999 && id < 5000 || id >6000 && id < 10000)
+                select new Dungeon{Id = id, Name=name, Coins = coins}).ToList();
 
+            File.WriteAllLines(Path.Combine(OutFolder, $"dungeons-{region}.tsv"), strings.OrderBy(x => x.Id).Select(x => x.ToTsv().Replace("\r", "")));
         }
     }
 }

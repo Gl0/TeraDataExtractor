@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Xml.Linq;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
-    public class Quests
+    public class ItemsExtractor
     {
         private string _region;
 
@@ -16,14 +15,14 @@ namespace TeraDataExtractor
         private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "items");
 
-        public Quests(string region)
+        public ItemsExtractor(string region, DataCenter dc)
         {
             Directory.CreateDirectory(OutFolder);
             _region = region;
             //Battlegrounds();
             //Items();
             //FullItems();
-            TCCItems();
+            TCCItems(dc);
         }
 
         public void Battlegrounds()
@@ -106,41 +105,24 @@ namespace TeraDataExtractor
             outputTFile.Close();
         }
 
-        private void TCCItems()
+        private void TCCItems(DataCenter dc)
         {
-            var strings = "".Select(t => new { id = UInt32.MinValue, name = string.Empty}).ToList();
-            foreach (
-                var file in
-                Directory.EnumerateFiles(RootFolder + _region + "/StrSheet_Item/"))
-            {
-                var xml = XDocument.Load(file);
-                var stringlist = (from str in xml.Root.Elements("String")
-                    let id = UInt32.Parse(str.Attribute("id")?.Value)
-                    let name = str.Attribute("string")?.Value.Replace('\n',' ') ?? ""
-                    where name!="" && id!=0
-                    select new { id, name }).ToList();
-                strings.AddRange(stringlist);
-            }
-            var items = "".Select(t => new { id = UInt32.MinValue, rareGrade = UInt32.MinValue, name = string.Empty, linkEquipmentExpId = UInt32.MinValue, coolTime = UInt32.MinValue, icon = string.Empty }).ToList();
-            foreach (
-                var file in
-                Directory.EnumerateFiles(RootFolder + _region + "/ItemData/"))
-            {
-                var xml = XDocument.Load(file);
-                var itemList = (from item in xml.Root.Elements("Item")
-                    join str in strings on UInt32.Parse(item.Attribute("id").Value) equals str.id
-                    let id = UInt32.Parse(item.Attribute("id")?.Value)
-                    let rareGrade = UInt32.Parse(item.Attribute("rareGrade")?.Value ?? "0")
-                    let linkEquipmentExpId = UInt32.Parse(item.Attribute("linkEquipmentExpId")?.Value ?? "0")
-                    let coolTime = UInt32.Parse(item.Attribute("coolTime")?.Value ?? "0")
-                    let icon = item.Attribute("icon")?.Value ?? ""
-                    select new { id, rareGrade, str.name, linkEquipmentExpId, coolTime, icon }).ToList();
-                items=items.Union(itemList, (x, y) => x.id == y.id, x => x.id.GetHashCode()).ToList();
-            }
+            var strings = (from str in dc.Root.Children("StrSheet_Item").SelectMany(x=>x.Children("String"))
+                                  let id = str["id", 0].ToInt32()
+                                  let name = str["string",""].AsString.Replace('\n', ' ') ?? ""
+                                  where name != "" && id != 0
+                                  select new { id, name }).ToList();
+            var items = (from item in dc.Root.Children("ItemData").SelectMany(x => x.Children("Item"))
+                                join str in strings on item["id", 0].ToInt32() equals str.id
+                                let id = item["id",0].ToInt32()
+                                let rareGrade = item["rareGrade",0].ToInt32()
+                                let linkEquipmentExpId = item["linkEquipmentExpId",0].ToInt32()
+                                let coolTime = item["coolTime",0].ToInt32()
+                                let icon = item["icon",""].AsString
+                                select new { id, rareGrade, str.name, linkEquipmentExpId, coolTime, icon }).ToList();
             //File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"), items.Select(x => $"{x.id}\t{x.rareGrade}\t{x.name}\t{x.linkEquipmentExpId}\t{x.coolTime}\t{x.icon.ToLowerInvariant()}"));
-            File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"),items.Select(x=>new StringBuilder().Append(x.id).Append("\t")
-            .Append(x.rareGrade).Append("\t").Append(x.name).Append("\t").Append(x.linkEquipmentExpId).Append("\t").Append(x.coolTime).Append("\t").Append(x.icon.ToLowerInvariant()).ToString().Replace("\n", "&#xA;")));
+            File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"), items.OrderBy(x=>x.id).Select(x => new StringBuilder().Append(x.id).Append("\t")
+             .Append(x.rareGrade).Append("\t").Append(x.name).Append("\t").Append(x.linkEquipmentExpId).Append("\t").Append(x.coolTime).Append("\t").Append(x.icon.ToLowerInvariant()).ToString().Replace("\n", "&#xA;")));
         }
-
     }
 }

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
@@ -15,32 +12,20 @@ namespace TeraDataExtractor
     public class AccountBenefitExtractor
     {
         private readonly string _region;
-        private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "acc_benefits");
         private Dictionary<uint, string> _benefits;
 
-        public AccountBenefitExtractor(string region)
+        public AccountBenefitExtractor(string region, DataCenter dc)
         {
             _region = region;
             Directory.CreateDirectory(OutFolder);
-            _benefits = new Dictionary<uint, string>();
-            var xdoc = XDocument.Load(Path.Combine(RootFolder,_region, "StrSheet_AccountBenefit.xml"));
-            xdoc.Descendants().Where(x => x.Name == "String").ToList().ForEach(s =>
-            {
-                _benefits.Add(Convert.ToUInt32(s.Attribute("id").Value),
-                               s.Attribute("string").Value);
-            });
+            var strings = (from str in dc.Root.Child("StrSheet_AccountBenefit").Children("String")
+                let id = str["id", 0].ToInt32()
+                let name = str["string", ""].AsString.Replace("\n", "&#xA;") ?? ""
+                where name != "" && id != 0
+                select new { id , name }).ToList();
 
-            var lines = new List<string>();
-            _benefits.ToList().ForEach(b =>
-            {
-                if (!string.IsNullOrEmpty(b.Value))
-                {
-                    var line = b.Key + "\t" + b.Value.Replace("\n", "&#xA;");
-                    lines.Add(line);
-                }
-            });
-            File.WriteAllLines(Path.Combine(OutFolder, $"acc_benefits-{_region}.tsv"), lines);
+            File.WriteAllLines(Path.Combine(OutFolder, $"acc_benefits-{_region}.tsv"), strings.OrderBy(x=>x.id).Select(x=>x.id.ToString()+"\t"+x.name));
         }
     }
 }

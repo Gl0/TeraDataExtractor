@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Xml;
+using Alkahest.Core.Collections;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
@@ -100,6 +98,22 @@ namespace TeraDataExtractor
         public static string Cap(this string x)
         {
             return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(x.ToLower());
+        }
+
+        public static DataCenterElement FirstChild(this DataCenterElement element, string name) => element.Children(name).FirstOrDefault();
+        public static DataCenterElement Child(this DataCenterElement element, string name) => element.Children(name).First();
+
+        public static void WriteElement(this DataCenterElement element, XmlWriter writer)
+        {
+            writer.WriteStartElement(element.Name);
+
+            foreach (var (name, value) in element.Attributes.Tuples())
+                writer.WriteAttributeString(name, value.ToString());
+
+            foreach (var elem in element.Children())
+                WriteElement(elem, writer);
+
+            writer.WriteEndElement();
         }
     }
 }

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using Alkahest.Core.Data;
 
 namespace TeraDataExtractor
 {
@@ -15,26 +11,20 @@ namespace TeraDataExtractor
     public class AchievementGradeInfoExtractor
     {
         private readonly string _region;
-        private string RootFolder = Program.SourcePath;
         private string OutFolder = Path.Combine(Program.OutputPath, "achi_grade");
 
-        public AchievementGradeInfoExtractor(string region)
+        public AchievementGradeInfoExtractor(string region,DataCenter dc)
         {
             _region = region;
             if (region.Contains("C")) return;
             Directory.CreateDirectory(OutFolder);
-            var xdoc = XDocument.Load(Path.Combine(RootFolder, _region, "StrSheet_AchievementGradeInfo.xml"));
+            var strings = (from str in dc.Root.Child("StrSheet_AchievementGradeInfo").Children("String")
+                let id = str["id", 0].ToInt32()
+                let name = str["string", ""].AsString.Replace("\n", "&#xA;") ?? ""
+                where name != "" && id != 0 && id < 106 && id > 100
+                select new { id, name }).ToList();
 
-            var lines = new List<string>();
-            foreach (var item in xdoc.Descendants().Where(x => x.Name == "String"))
-            {
-                var id = uint.Parse(item.Attribute("id").Value);
-                var name = item.Attribute("string").Value;
-                if (id > 105 || id < 101) continue;
-
-                lines.Add(id + "\t" + name.Replace("\n", "&#xA;"));
-            }
-            File.WriteAllLines(Path.Combine(OutFolder, $"achi_grade-{_region}.tsv"), lines);
+            File.WriteAllLines(Path.Combine(OutFolder, $"achi_grade-{_region}.tsv"), strings.OrderBy(x => x.id).Select(x => x.id.ToString() + "\t" + x.name));
         }
     }
 }
