@@ -101,7 +101,7 @@ namespace TeraDataExtractor
         }
 
         public static DataCenterElement FirstChild(this DataCenterElement element, string name) => element.Children(name).FirstOrDefault();
-        public static DataCenterElement Child(this DataCenterElement element, string name) => element.Children(name).First();
+        public static DataCenterElement Child(this DataCenterElement element, string name) => element.Children(name).SingleOrDefault();
 
         public static void WriteElement(this DataCenterElement element, XmlWriter writer)
         {

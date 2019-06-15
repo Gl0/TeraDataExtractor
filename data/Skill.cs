@@ -4,7 +4,7 @@ namespace TeraDataExtractor
 {
     public class Skill : IComparable<Skill>
     {
-        public Skill(string id, string race, string gender,string pclass,string name,string iconName="")
+        public Skill(int id, string race, string gender,string pclass,string name,string iconName="")
         {
             Id = id;
             Race = race;
@@ -13,7 +13,7 @@ namespace TeraDataExtractor
             Name = name;
             IconName = iconName;
         }
-        public Skill(string id, string race, string gender, string pclass, string name, string chained, string detail, string iconName)
+        public Skill(int id, string race, string gender, string pclass, string name, string chained, string detail, string iconName)
         {
             Id = id;
             Race = race;
@@ -28,7 +28,7 @@ namespace TeraDataExtractor
         public string Race { get; }
         public string Gender { get; }
         public string PClass { get; }
-        public string Id { get; }
+        public int Id { get; }
         public string Name { get; set; }
         public string Chained { get; set; }
         public string Detail { get; set; }
@@ -43,9 +43,8 @@ namespace TeraDataExtractor
             }
             return (hit==0)?"":(hit+1).ToString()+" hit";
         }
-        public override int GetHashCode() {
-            return (Race + PClass + Id).GetHashCode();
-        }
+        public override int GetHashCode() => (Race, PClass, Id).GetHashCode();
+
         public static bool operator ==(Skill x, Skill y) {
             if ((object)y == null)
             {
@@ -90,13 +89,13 @@ namespace TeraDataExtractor
         public int CompareTo(Skill y)
         {
             if (y == null) return 1;
-            return (PClass == y.PClass) ? int.Parse(Id).CompareTo(int.Parse(y.Id)) : (y.PClass == "Common") ? -1 : (PClass == "Common") ? 1 : string.Compare(PClass, y.PClass);
+            return (PClass == y.PClass) ? Id.CompareTo(y.Id) : (y.PClass == "Common") ? -1 : (PClass == "Common") ? 1 : string.Compare(PClass, y.PClass);
         }
     }
 
     public class PetSkill : IComparable<PetSkill>
     {
-        public PetSkill(string huntingZoneId, string template, string petName, string id, string name, string iconName = "")
+        public PetSkill(int huntingZoneId, int template, string petName, int id, string name, string iconName = "")
         {
             HZ = huntingZoneId;
             Template = template;
@@ -106,17 +105,14 @@ namespace TeraDataExtractor
             IconName = iconName;
         }
 
-        public string HZ { get; }
-        public string Template { get; }
+        public int HZ { get; }
+        public int Template { get; }
         public string PetName { get; }
-        public string Id { get; }
+        public int Id { get; }
         public string Name { get; set; }
         public string IconName { get; set; }
         public Skill Parent { get; set; } //1st way
-        public override int GetHashCode()
-        {
-            return (HZ + Template + Id).GetHashCode();
-        }
+        public override int GetHashCode() => (HZ, Template, Id).GetHashCode();
         public static bool operator ==(PetSkill x, PetSkill y)
         {
             if ((object)y == null)
@@ -161,7 +157,7 @@ namespace TeraDataExtractor
         public int CompareTo(PetSkill y)
         {
             if (y == null) return 1;
-            return HZ == y.HZ && Template==y.Template ? int.Parse(Id).CompareTo(int.Parse(y.Id)) : (HZ == y.HZ) ? int.Parse(Template).CompareTo(int.Parse(y.Template)) : int.Parse(HZ).CompareTo(int.Parse(y.HZ));
+            return HZ == y.HZ && Template==y.Template ? Id.CompareTo(y.Id) : (HZ == y.HZ) ? Template.CompareTo(y.Template) : HZ.CompareTo(y.HZ);
         }
     }
 

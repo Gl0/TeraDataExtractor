@@ -5,12 +5,12 @@ namespace TeraDataExtractor
 {
     class ParsedSkill
     {
-        public ParsedSkill(string internalname,string skillid,string stype, string category)
+        public ParsedSkill(string internalname,int skillid,string stype, string category, int tclass)
         {
             SkillId = skillid;
             sType = stype;
             var i = category.IndexOf(',');
-            Category = i==-1 ? category : category.Split(',').Take(3).FirstOrDefault(x => x.Length>=5)??category.Substring(0, category.IndexOf(','));
+            Category = i==-1 ? 0 : int.Parse(category.Split(',').Take(3).FirstOrDefault(x => int.Parse(x)/1000==tclass)??"0");
             string cut = internalname.ToLowerInvariant().Replace("_"," ");
             modifiers = new List<string> { };
             bool _cut = true;
@@ -77,7 +77,7 @@ namespace TeraDataExtractor
             {
                 if (BaseName.Contains("sorcerer"))
                 {
-                    if (!(skillid.EndsWith("0") && modifiers.Contains("01")))
+                    if (!(skillid % 10 == 0  && modifiers.Contains("01")))
                     {
                         Detail = "hit " + (int.Parse(modifiers.Find(x => x.Contains("0")).Substring(1, 1)) + 1).ToString();
                     }
@@ -138,9 +138,9 @@ namespace TeraDataExtractor
         private List<string> modifiers { get; }
 
         public string Chained { get; }
-        public string SkillId { get; }
+        public int SkillId { get; }
         public string Lvl { get; }
-        public string Category { get; }
+        public int Category { get; }
         private string sType { get; }
 
         public string Detail { get; } //hit number or other comment, such as "Explosion"

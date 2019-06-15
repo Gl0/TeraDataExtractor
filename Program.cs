@@ -19,6 +19,7 @@ namespace TeraDataExtractor
         {
             Directory.CreateDirectory(OutputPath);//create output directory if not exist
             Directory.CreateDirectory(IconFolder);//create output directory if not exist
+//            var region = "RU";
             Parallel.ForEach(args.ToList(), region => {
                 var dirInfo = new DirectoryInfo(SourcePath + region);
                 var fileName = dirInfo.EnumerateFiles("Datacenter_Fina*").OrderByDescending(x => x.LastWriteTimeUtc).FirstOrDefault()?.FullName;

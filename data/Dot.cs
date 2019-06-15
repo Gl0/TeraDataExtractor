@@ -130,13 +130,13 @@ namespace TeraDataExtractor
         public bool IsBuff { get; set; }
         public bool IsShow { get; set; }
 
-        public HotDot(int abnormalid, string type, double amount, string method, long time, int tick, string name,string itemid, string itemName,string tooltip,string iconName, string abType, bool isBUff, bool isShow, string effectIcon)
+        public HotDot(int abnormalid, int type, double amount, int method, long time, int tick, string name,string itemid, string itemName,string tooltip,string iconName, string abType, bool isBUff, bool isShow, string effectIcon)
         {
             AbnormalId = abnormalid;
-            _type = (types) Enum.Parse(typeof(types),type);
-            HPChange = (type == "51") ? amount : 0;
-            MPChange = (type == "52") ? amount : 0;
-            Method = (methods) Enum.Parse(typeof(methods), method);
+            _type = (types) type;
+            HPChange = (type == 51) ? amount : 0;
+            MPChange = (type == 52) ? amount : 0;
+            Method = (methods) method;
             Time = time;
             Tick = tick;
             Amount = amount;
