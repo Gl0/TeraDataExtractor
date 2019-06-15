@@ -119,7 +119,7 @@ namespace TeraDataExtractor
                                 let linkEquipmentExpId = item["linkEquipmentExpId",0].ToInt32()
                                 let coolTime = item["coolTime",0].ToInt32()
                                 let icon = item["icon",""].AsString
-                                select new { id, rareGrade, str.name, linkEquipmentExpId, coolTime, icon }).ToList();
+                                select new { id, rareGrade, str.name, linkEquipmentExpId, coolTime, icon }).Distinct((x,y)=>x.id==y.id,x=>x.id.GetHashCode()).ToList();
             //File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"), items.Select(x => $"{x.id}\t{x.rareGrade}\t{x.name}\t{x.linkEquipmentExpId}\t{x.coolTime}\t{x.icon.ToLowerInvariant()}"));
             File.WriteAllLines(Path.Combine(OutFolder, $"items-{_region}.tsv"), items.OrderBy(x=>x.id).Select(x => new StringBuilder().Append(x.id).Append("\t")
              .Append(x.rareGrade).Append("\t").Append(x.name).Append("\t").Append(x.linkEquipmentExpId).Append("\t").Append(x.coolTime).Append("\t").Append(x.icon.ToLowerInvariant()).ToString().Replace("\n", "&#xA;")));
