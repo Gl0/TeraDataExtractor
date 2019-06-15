@@ -20,7 +20,7 @@ namespace TeraDataExtractor
                 let id = str["id", 0].ToInt32()
                 let name = str["string", ""].AsString.Replace("\n", "&#xA;") ?? ""
                 where name != "" && id != 0
-                select new { id , name }).ToList();
+                select new { id , name }).Distinct((x,y)=>x.id==y.id,x=>x.id.GetHashCode()).ToList();
 
             File.WriteAllLines(Path.Combine(OutFolder, $"acc_benefits-{region}.tsv"), strings.OrderBy(x=>x.id).Select(x=>x.id.ToString()+"\t"+x.name));
         }
