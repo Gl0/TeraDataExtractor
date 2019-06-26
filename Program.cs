@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Packaging;
 using System.Linq;
+using System.Runtime;
 using System.Threading.Tasks;
 using Alkahest.Core.Data;
 
@@ -15,8 +16,8 @@ namespace TeraDataExtractor
         public static string IconFolder = Path.Combine(OutputPath, "icons");
         public static List<string> Copied = new List<string>();
         public static SortedDictionary<int, string> abnormals = new SortedDictionary<int, string>();
-        private static void Main(string[] args)
-        {
+        private static void Main(string[] args) {
+            GCSettings.LatencyMode = GCLatencyMode.Batch;
             Directory.CreateDirectory(OutputPath);//create output directory if not exist
             Directory.CreateDirectory(IconFolder);//create output directory if not exist
 //            var region = "RU";
