@@ -57,13 +57,13 @@ namespace TeraDataExtractor
                                let property = item["property",0].ToString()
                                let isBuff = item["isBuff",true].ToBoolean()
                                let time = item["infinity",false].ToBoolean() ? "0" : item["time","0"].AsString
-                               from eff in item.Children("AbnormalityEffect")
-                               let type = eff["type",-1].ToInt32()
-                               let method = eff["method",-1].ToInt32()
+                               from eff in item.Children("AbnormalityEffect").DefaultIfEmpty()
+                               let type = eff?["type",0].ToInt32()??0
+                               let method = eff?["method",0].ToInt32()??0
                                let num = item.Children("AbnormalityEffect").TakeWhile(x => x != eff).Count() + 1
-                               let amount = eff["value",""].AsString
-                               let tick = eff["tickInterval", 0].ToString()
-                               where (((type == 51 || type == 52) && tick != "0") || (!redirects_to_ignore.Contains(type))) && amount != "" && method != -1
+                               let amount = eff?["value","0"].AsString??"0"
+                               let tick = eff?["tickInterval", 0].ToString()??"0"
+                               where (((type == 51 || type == 52) && tick != "0") || (!redirects_to_ignore.Contains(type)))// && amount != "" && method != -1
 //                    where (((type == "51" || type == "52") && tick != "0") || (!redirects_to_ignore.Contains(type) && (isShow != "False" || abnormalid == "201" || abnormalid == "202" || abnormalid == "10152050"))) && amount != "" && method != ""
                                select new { abnormalid, type, amount = amount.Contains(',')?amount.Split(',').Last() : amount, method, time, tick, num, property, isBuff, isShow }).ToList();                                  //// 201 202 - marked as not shown, but needed
             var parser = (from item in abnormalityDC
