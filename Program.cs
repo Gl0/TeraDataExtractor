@@ -26,6 +26,7 @@ namespace TeraDataExtractor
                 var fileName = dirInfo.EnumerateFiles("Datacenter_Fina*").OrderByDescending(x => x.LastWriteTimeUtc).FirstOrDefault()?.FullName;
                 if (string.IsNullOrWhiteSpace(fileName)) {Console.WriteLine("Missing "+fileName);return;}
                 using var dc = new DataCenter(fileName, true);
+                Console.WriteLine(region+": "+dc.Root.Child("BuildVersion")["version",0].ToString());
                 new SkillExtractor(region, dc, out var skills, out var templates);
                 new MonsterExtractor(region, dc, skills, templates);
                 new DotExtractor(region, dc, skills, templates);

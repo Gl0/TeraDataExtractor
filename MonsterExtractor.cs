@@ -146,7 +146,7 @@ namespace TeraDataExtractor
                           join mobb in mobprop on new { mobd.idzone, id = mobd.identity } equals new { mobb.idzone, mobb.id } into moba
                           from mobs in moba.DefaultIfEmpty()
                           orderby mobd.idzone, mobd.identity
-                          select new { mobd.idzone, mobd.identity, mobd.name, boss = mobs == null ? false : mobs.boss, maxHP = mobs == null ? "0" : mobs.maxHP, size = mobs == null ? "" : mobs.size, mobs.speciesId}).ToList();
+                          select new { mobd.idzone, mobd.identity, mobd.name, boss = mobs == null ? false : mobs.boss, maxHP = mobs == null ? "0" : mobs.maxHP, size = mobs == null ? "" : mobs.size, speciesId = mobs?.speciesId ?? 0}).ToList();
             var alldata = (from mobs in moball
                            join zoned in zonedata on mobs.idzone equals zoned.Id into zones
                            from zone in zones.DefaultIfEmpty()
