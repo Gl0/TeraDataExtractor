@@ -51,7 +51,7 @@ namespace TeraDataExtractor
                         outputFile.Write("id=\"" + monster.Value.Id + "\" ");
                         outputFile.Write(monster.Value.IsBoss ? "isBoss=\"True\" " : "isBoss=\"False\" ");
                         outputFile.Write("hp=\"" + monster.Value.Hp + "\" ");
-                        outputFile.Write("specie=\"" + monster.Value.Specie + "\" ");
+                        outputFile.Write("speciesId=\"" + monster.Value.Specie + "\" ");
 
                         outputFile.WriteLine("/>");
                     }
