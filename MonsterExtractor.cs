@@ -137,21 +137,21 @@ namespace TeraDataExtractor
                                 let id = entity["id",0].ToInt32()
                                 let boss = entity["showAggroTarget",false].ToBoolean()
                                 let size = entity["size",""].AsString
-                                let specie = entity["speciesId", 0]
+                                let speciesId = entity["speciesId", 0].AsInt32
                                 from stat in entity.Children("Stat")
                                 let maxHP = stat["maxHp","0"].AsString
                                 where id != 0
-                                select new { idzone, id, boss, maxHP, size, specie }).ToList();
+                                select new { idzone, id, boss, maxHP, size, speciesId }).ToList();
             var moball = (from mobd in mobdata
                           join mobb in mobprop on new { mobd.idzone, id = mobd.identity } equals new { mobb.idzone, mobb.id } into moba
                           from mobs in moba.DefaultIfEmpty()
                           orderby mobd.idzone, mobd.identity
-                          select new { mobd.idzone, mobd.identity, mobd.name, boss = mobs == null ? false : mobs.boss, maxHP = mobs == null ? "0" : mobs.maxHP, size = mobs == null ? "" : mobs.size }).ToList();
+                          select new { mobd.idzone, mobd.identity, mobd.name, boss = mobs == null ? false : mobs.boss, maxHP = mobs == null ? "0" : mobs.maxHP, size = mobs == null ? "" : mobs.size, mobs.speciesId}).ToList();
             var alldata = (from mobs in moball
                            join zoned in zonedata on mobs.idzone equals zoned.Id into zones
                            from zone in zones.DefaultIfEmpty()
                            orderby mobs.idzone, mobs.identity
-                           select new { mobs.idzone, regname = zone == null ? "unknown" : zone.Name, mobs.identity, mobs.name, boss = (zone == null) ? false : zone.battle ? false : mobs.boss, mobs.maxHP, mobs.size }).ToList();
+                           select new { mobs.idzone, regname = zone == null ? "unknown" : zone.Name, mobs.identity, mobs.name, boss = (zone == null) ? false : zone.battle ? false : mobs.boss, mobs.maxHP, mobs.size, mobs.speciesId }).ToList();
 
             var bossOverride = new Dictionary<int, Dictionary<int, bool>>();
             var nameOverride = new Dictionary<int, Dictionary<int, string>>();
@@ -205,7 +205,7 @@ namespace TeraDataExtractor
                 }
 
                 if (!_zones[all.idzone].Monsters.ContainsKey(all.identity))
-                    _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss, 0));
+                    _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss, all.speciesId));
             }
         }
     }
