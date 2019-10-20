@@ -51,6 +51,7 @@ namespace TeraDataExtractor
                         outputFile.Write("id=\"" + monster.Value.Id + "\" ");
                         outputFile.Write(monster.Value.IsBoss ? "isBoss=\"True\" " : "isBoss=\"False\" ");
                         outputFile.Write("hp=\"" + monster.Value.Hp + "\" ");
+                        outputFile.Write("specie=\"" + monster.Value.Specie + "\" ");
 
                         outputFile.WriteLine("/>");
                     }
@@ -136,10 +137,11 @@ namespace TeraDataExtractor
                                 let id = entity["id",0].ToInt32()
                                 let boss = entity["showAggroTarget",false].ToBoolean()
                                 let size = entity["size",""].AsString
+                                let specie = entity["speciesId", 0]
                                 from stat in entity.Children("Stat")
                                 let maxHP = stat["maxHp","0"].AsString
                                 where id != 0
-                                select new { idzone, id, boss, maxHP, size }).ToList();
+                                select new { idzone, id, boss, maxHP, size, specie }).ToList();
             var moball = (from mobd in mobdata
                           join mobb in mobprop on new { mobd.idzone, id = mobd.identity } equals new { mobb.idzone, mobb.id } into moba
                           from mobs in moba.DefaultIfEmpty()
@@ -203,7 +205,7 @@ namespace TeraDataExtractor
                 }
 
                 if (!_zones[all.idzone].Monsters.ContainsKey(all.identity))
-                    _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss));
+                    _zones[all.idzone].Monsters.Add(all.identity, new Monster(all.identity, name, all.maxHP, isboss, 0));
             }
         }
     }
