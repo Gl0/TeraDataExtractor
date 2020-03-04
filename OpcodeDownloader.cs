@@ -30,8 +30,8 @@ namespace TeraDataExtractor
 
         public class ToolboxTeraData {
             public Dictionary<string, Dictionary<string, int>> maps { get; set; }
-            public Dictionary<string, string> protocol { get; set; }
-            public dynamic deprecated { get; set; }
+            //public Dictionary<string, string> protocol { get; set; }
+            //public dynamic deprecated { get; set; }
         }
     }
 }
