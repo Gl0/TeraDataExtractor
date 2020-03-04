@@ -129,6 +129,7 @@
     <Compile Include="GuildQuestExtractor.cs" />
     <Compile Include="MonsterExtractor.cs" />
     <Compile Include="NewWorldMapDataExtractor.cs" />
+    <Compile Include="OpcodeDownloader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="data\Zone.cs" />

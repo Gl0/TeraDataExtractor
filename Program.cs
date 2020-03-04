@@ -20,6 +20,7 @@ namespace TeraDataExtractor
             GCSettings.LatencyMode = GCLatencyMode.Batch;
             Directory.CreateDirectory(OutputPath);//create output directory if not exist
             Directory.CreateDirectory(IconFolder);//create output directory if not exist
+            if (args.Length == 0) { new OpcodeDownloader(); return;}
 //            var region = "RU";
             Parallel.ForEach(args.ToList(), region => {
                 var dirInfo = new DirectoryInfo(SourcePath + region);
