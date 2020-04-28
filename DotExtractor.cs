@@ -26,7 +26,8 @@ namespace TeraDataExtractor
             foreach (HotDot line in Dotlist)
             {
                 outputFile.WriteLine(line.ToString().Replace('\r',' ').Replace('\n',' '));
-                Program.Copytexture(line.IconName,line.AbnormalId);
+                Program.Copytexture(line.IconName, line.AbnormalId);
+                Program.Copytexture(line.EffectIcon, line.AbnormalId);
             }
             outputFile.Flush();
             outputFile.Close();
