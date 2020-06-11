@@ -102,12 +102,11 @@ namespace TeraDataExtractor
                          from rd in regdun.DefaultIfEmpty()
                          select new { idcont = contn.idcont, regname = rd == null ? rg.regname : rd.dunname, nameid = contn.nameid }).ToList();
             var zdata = (from zone in dc.Root.FirstChild("StrSheet_ZoneName").Children("String")
-                         from cont in contdata
                          let Id = zone["id",0].ToInt32()
                          let Name = zone["string",""].AsString
-                         let battle = cont.battle
-                         where cont.idzone == Id
-                         select new { Id , Name, battle }).ToList();
+                         join cont in contdata on Id equals cont.idzone into cb
+                         from c in cb.DefaultIfEmpty()
+                         select new { Id , Name, battle = c?.battle??false }).ToList();
 
             var zonedata = (from rd in regdd
                 from cont in contdata
