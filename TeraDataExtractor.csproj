@@ -39,7 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Alkahest.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Alkahest.Core.1.0.0-rc3\lib\net472\Alkahest.Core.dll</HintPath>
+      <HintPath>packages\Alkahest.Core.1.0.0-rc3-TeraDataExtractor\lib\net472\Alkahest.Core.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Linq.Expressions, Version=1.2.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>packages\Mono.Linq.Expressions.1.2.0.0\lib\Mono.Linq.Expressions.dll</HintPath>
