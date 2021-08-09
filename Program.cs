@@ -24,7 +24,7 @@ namespace TeraDataExtractor
 //            var region = "RU";
             Parallel.ForEach(args.ToList(), region => {
                 var dirInfo = new DirectoryInfo(SourcePath + region);
-                var fileName = dirInfo.EnumerateFiles("Datacenter_Fina*").OrderByDescending(x => x.LastWriteTimeUtc).FirstOrDefault()?.FullName;
+                var fileName = dirInfo.EnumerateFiles("*atacenter_Fina*").OrderByDescending(x => x.LastWriteTimeUtc).FirstOrDefault()?.FullName;
                 if (string.IsNullOrWhiteSpace(fileName)) {Console.WriteLine("Missing "+fileName);return;}
                 using var dc = new DataCenter(File.OpenRead(fileName), true);
                 Console.WriteLine(region+": "+dc.Root.Child("BuildVersion")["version",0].ToString());
@@ -61,7 +61,7 @@ namespace TeraDataExtractor
             {
                 if (!string.IsNullOrEmpty(name) && !Copied.Contains(name))
                 {
-                    var filename = SourcePath + "Icons\\" + name.Replace(".", "\\Texture2D\\") + ".png";
+                    var filename = SourcePath + "Icons\\" + name.Replace(".", "\\") + ".png";
                     var outfilename = Path.Combine(IconFolder, name + ".png");
                     if (File.Exists(filename))
                     {
@@ -71,8 +71,8 @@ namespace TeraDataExtractor
                     }
                     else Console.WriteLine("Not found texture: " + name);
                 }
+                if (!string.IsNullOrEmpty(name) && id != 0 && !abnormals.ContainsKey(id)) abnormals.Add(id, name);
             }
-            if (!string.IsNullOrEmpty(name) && id != 0 && !abnormals.ContainsKey(id)) abnormals.Add(id, name);
         }
 
         public static void PackIcons()
