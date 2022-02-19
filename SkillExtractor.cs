@@ -191,15 +191,29 @@ namespace TeraDataExtractor
                             from itp in itps
                             select new { cs.p_skill.BaseName, cs.p_skill.Category, itp.Name, itp.IconName }).ToList();
             IntToPub.Distinct((x, y) => x.BaseName == y.BaseName, x => x.BaseName.GetHashCode());
+            var projectileSkills = (from temp in templates /// just for one missing projectile skillid...
+                    join skills in dc.Root.Children("SkillData").Where(x => x["huntingZoneId", 0].ToInt32() == 0).SelectMany(x => x.Children("Skill")) on temp.templateId
+                        equals skills["templateId", 0].ToInt32() into Pskills
+                    from Pskill in Pskills
+                    from ProjectileId in Pskill.Descendants("ProjectileSkill").Select(x => x["id", 0].ToInt32()).DefaultIfEmpty(0)
+                    let PClass = temp.PClass
+                    let skillid = Pskill["id", 0].ToInt32()
+                    where PClass != "" && skillid != 0 && ProjectileId != 0
+                    join sl in skilllist on new { PClass, skillid } equals new { sl.PClass, skillid = sl.Id } into ps
+                    from ips in ps
+                    select new { PClass, ProjectileId, Name=ips.Name, IconName=ips.IconName }
+                ).Distinct((x, y) => x.PClass == y.PClass && x.ProjectileId == y.ProjectileId, x => (x.PClass, x.ProjectileId).GetHashCode()).ToList();
             var chainedlist = (from cs in ChainSkills
                                from itpc in IntToPub.Where(x => x.Category != 0 && x.Category == cs.p_skill.Category && x.BaseName != cs.p_skill.BaseName).DefaultIfEmpty(new { BaseName = "", Category = 0, Name = "", IconName = "" })
                                from itp in IntToPub.Where(x => x.BaseName == cs.p_skill.BaseName).DefaultIfEmpty(new { BaseName = "", Category = 0, Name = "", IconName = "" })
-                                   //join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
+                               from proj in projectileSkills.Where(x=>x.PClass==cs.PClass && x.ProjectileId==cs.skillid).DefaultIfEmpty( new{PClass="",ProjectileId=0,Name="",IconName="" })
+                               //join itp in IntToPub on cs.p_skill.BaseName equals itp.BaseName
                                join sl in skilllist on new { cs.skillid, cs.PClass } equals new { skillid = sl.Id, sl.PClass } into uskills
                                from uskill in uskills.DefaultIfEmpty(new Skill(0, "", "", "", ""))
-                               where itp.Name != "" || itpc.Name!="" || uskill.Name != ""
-                               select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name==""?itpc.Name:itp.Name, cs.p_skill.Lvl) : uskill.Name, cs.p_skill.Chained, cs.p_skill.Detail, uskill.IconName == "" ? itp.IconName=="" ? itpc.IconName :itp.IconName  : uskill.IconName)).ToList();
+                               where itp.Name != "" || itpc.Name!="" || uskill.Name != "" || proj.Name !=""
+                               select new Skill(cs.skillid, "Common", "Common", cs.PClass, uskill.Name == "" ? ChangeLvl(itp.Name==""?itpc.Name==""?proj.Name:itpc.Name:itp.Name, cs.p_skill.Lvl) : uskill.Name, cs.p_skill.Chained, cs.p_skill.Detail, uskill.IconName == "" ? itp.IconName=="" ? itpc.IconName =="" ? proj.IconName : itpc.IconName : itp.IconName  : uskill.IconName)).ToList();
             skilllist = chainedlist.Union(skilllist).ToList();
+            templates.Add(new Template("Common", "Common", "Common", 9999)); ///add summoning skills for equipment
             return templates;
         }
 
